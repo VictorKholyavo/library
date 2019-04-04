@@ -1,11 +1,24 @@
 import {JetView} from "webix-jet";
-import {data} from "models/records";
 
 export default class DataView extends JetView{
 	config(){
-		return { view:"datatable", autoConfig:true, css:"webix_shadow_medium" };
+		return { 
+			view:"datatable", 
+			columns: [
+				{id: "firstname", header: "firstname"},
+				{id: "surname", header: "surname"},
+				{id: "patronymic", header: "patronymic"},
+				{id: "passport", header: "passport"},
+				{id: "dateofbirth", header: "dateofbirth"},
+				{id: "address", header: "address"},
+				{id: "phones", header: "phones"},
+				{id: "cardnumber", header: "cardnumber"},
+				{id: "role", header: "Role"},
+			],
+			url: "http://localhost:3016/users/getInfo",
+			css:"webix_shadow_medium" 
+		};
 	}
-	init(view){
-		view.parse(data);
+	init(){
 	}
 }

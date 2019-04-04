@@ -113,7 +113,7 @@ export default class FormforBookView extends JetView {
 	saveProduct(values) {
 		if (this.$getForm().validate()) {
             console.log(values)
-			// webix.ajax().post("http://localhost:3014/products", values);
+			webix.ajax().post("http://localhost:3016/books/add", values);
 			// this.$getForm().clear();
 			// this.$getForm().clearValidation();
 		}

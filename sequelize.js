@@ -30,8 +30,8 @@ Users.hasOne(Roles, {foreignKey: "id"});
 //BOOKS AND GENRES//
 const Books = BooksModel(sequelize, Sequelize);
 const Genres = GenresModel(sequelize, Sequelize);
-Genres.belongsToMany(Books, {through: "GenresBooks", as: "books", foreignKey: "bookId"});
-Books.belongsToMany(Genres, {through: "GenresBooks", as: "genres", foreignKey: "genreId"});
+Genres.belongsToMany(Books, {through: "GenresBooks", as: "books"});
+Books.belongsToMany(Genres, {through: "GenresBooks", as: "genres"});
 
 
 // const Phones = PhonesModel(sequelize, Sequelize);

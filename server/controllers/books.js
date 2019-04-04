@@ -47,7 +47,15 @@ app.put("/:id", async (req, res) => {
 app.post("/add", async (req, res) => {
     try {
         let newBook = req.body;
-        console.log(newBook)
+        Books.create(newBook).then((book) => {
+            console.log(book.dataValues)
+            Genres.findOne({
+                where: {id: req.body.genre}
+            }).then((genre) => {
+                console.log(genre.dataValues)
+                genre.addBooks([book.dataValues.id])
+            })
+        });
     } catch (error) {
         
     }

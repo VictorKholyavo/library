@@ -14,7 +14,7 @@ module.exports = (sequelize, type) => {
 			type: type.INTEGER
 		},
 		year: {
-			type: type.DATEONLY
+			type: type.INTEGER
 		},
 		author: {
 			type: type.STRING

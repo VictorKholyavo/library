@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const UsersController = require("./server/controllers/users");
 const UsersDetailesController = require("./server/controllers/usersDetailes");
 const GenresController = require("./server/controllers/genres");
+const BooksController = require("./server/controllers/books");
 // const PhonesController = require("./server/controllers/phones");
 // const { Users, Phones } = require('./sequelize');
 
@@ -17,6 +18,7 @@ app.use("/users", UsersController);
 app.use("/usersdetailes", UsersDetailesController);
 
 app.use("/genres", GenresController);
+app.use("/books", BooksController);
 
 // app.use("/phones", PhonesController);
 

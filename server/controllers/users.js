@@ -31,11 +31,9 @@ passport.use(new LocalStrategy({ usernameField: "email" },
             where: {email: username}
         }).then(user => {
             if (!user) {
-                console.log('!user');
                 return done(null, false);
             }
             if (!bcrypt.compareSync(password, user.password)) {
-                console.log('!password');
                 return done(null, false);
             }
             return done(null, user.dataValues);
@@ -57,7 +55,6 @@ app.post("/login", (req, res, next) => {
 					return next(err);
                 }
                 const token = jwt.sign({id: user.id}, "secret for library");
-                console.log(token)
 	            return res.json({token: token});
 			});
 	})(req, res, next);
@@ -66,7 +63,7 @@ app.post("/login", (req, res, next) => {
 app.post("/login/status", passport.authenticate('jwt', {session: false}), async (req, res, next) => {
     if (req.user) {
 		let token = jwt.sign({id: req.user.id}, "secret for library");
-		return res.json({token: token, role: req.user.role_id});
+		return res.json({token: token, role: req.user.roleUuid});
 	}
 	return res.json(null);
 });
@@ -84,17 +81,63 @@ app.post("/logout", (req, res) => {
 
 // ADMIN //
 app.get("/", async (req, res) => {
-    const users = await Users.findAll({include: [UsersDetailes]});
-    console.log(users)
+    const usersToAdmin = await Users.findAll({include: [UsersDetailes]});
+    return res.json(usersToAdmin.map((user) => {
+        let role = user.dataValues.roleUuid;
+        user = user.usersdetaile.dataValues;
+        user.role = role;
+        return user;
+    })); 
     // const usersToAdmin = users.map(function(user) {
     //     let role = user.dataValues.role;
     //     user = user.usersdetaile.dataValues;
     //     user.role = role;
     //     return user;
     // });
-    res.json(usersToAdmin);
+    // res.json(usersToAdmin);
 });
 app.put("/:id", async (req, res) => {
+    console.log(req.body)
+    let updateUserDetailes = {
+        firstname: req.body.firstname,
+        surname: req.body.surname,
+        patronymic: req.body.patronymic,
+        passport: req.body.passport,
+        dateofbirth: req.body.dateofbirth,
+        address: req.body.address,
+        phones: req.body.phones,
+        cardnumber: req.body.cardnumber
+    }
+    let optionsUserDetailes = {
+        where: {id: req.body.id}
+    }
+    let updateUserRole = {
+        roleUuid: req.body.role
+    }
+    let optionsUserRole = {
+        where: {id: req.body.userId}
+    }
+    UsersDetailes.update(updateUserDetailes, optionsUserDetailes)
+        .then(function (rowsUpdate, [updatedUserDetailes]) {
+            // return res.json(updatedUserDetailes)
+        });
+    Users.update(updateUserRole, optionsUserRole)
+            .then(function (rowsUpdate, [updatedUserRole]) {
+                return res.json(updatedUserRole)
+            });
+    
+
+    
+    
+});
+
+// USERS //
+app.get("/user/:id", passport.authenticate('jwt', {session: false}), async (req, res, next) => {
+    const userDetailes = await Users.findOne({where: {id: req.user.id}, include: [UsersDetailes]});
+    return res.json(userDetailes.usersdetaile.dataValues);
+});
+
+app.put("/user/:id", async (req, res) => {
     let updateUserDetailes = {
         firstname: req.body.firstname,
         surname: req.body.surname,
@@ -112,15 +155,6 @@ app.put("/:id", async (req, res) => {
         .then(function (rowsUpdate, [updatedUserDetailes]) {
             return res.json(updatedUserDetailes)
         });
-
-    // const users = await Users.findAll({include: [UsersDetailes]});
-    // const usersToAdmin = users.map(function(user) {
-    //     let role = user.dataValues.role;
-    //     user = user.usersdetaile.dataValues;
-    //     user.role = role;
-    //     return user;
-    // });
-    // res.json(usersToAdmin);
 });
 
 // let orderDirection = "";
@@ -148,7 +182,8 @@ app.post("/registration", async (req, res) => {
         let newUser = req.body;
         Users.create(newUser)
             .then((newUser) => {
-                let userDetailes = {user_id: newUser.dataValues.id}
+                console.log(newUser.dataValues.id)
+                let userDetailes = {userId: newUser.dataValues.id}
                 UsersDetailes.create(userDetailes). 
                     then((newUser) => {
                         res.send("You have been registered");

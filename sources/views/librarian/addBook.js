@@ -51,18 +51,76 @@ export default class FormforBookView extends JetView {
 							label: "Available count",
 							labelWidth: 120,
 						},
-						{
-							view: "richselect",
-							name: "genre",
-							localId: "genre",
-							label: "Genre",
-							labelWidth: 120,
-							options:{
-								body: {
-									template: "#genre#",
-									url:"http://localhost:3016/genres",
-								}
-							},
+						{	
+							margin: 40,
+							cols: [
+								{
+									view: "richselect",
+									name: "genre",
+									localId: "genre",
+									label: "Genre",
+									on: {
+										onChange: () => {
+											this.$$("genre2").show();
+										},	
+									},
+									options:{
+										body: {
+											template: "#genre#",
+											url:"http://localhost:3016/genres",
+										}
+									},
+								},
+								{
+									view: "richselect",
+									name: "genre2",
+									localId: "genre2",
+									hidden: true,
+									label: "Genre №2",
+									on: {
+										onChange: () => {
+											this.$$("genre3").show();
+										},	
+									},
+									options:{
+										body: {
+											template: "#genre#",
+											url:"http://localhost:3016/genres",
+										}
+									},
+								},
+								{
+									view: "richselect",
+									name: "genre3",
+									localId: "genre3",
+									hidden: true,
+									label: "Genre №3",
+									on: {
+										onChange: () => {
+											this.$$("genre4").show();
+										},	
+									},
+									options:{
+										body: {
+											template: "#genre#",
+											url:"http://localhost:3016/genres",
+										}
+									},
+								},
+								{
+									view: "richselect",
+									name: "genre4",
+									localId: "genre4",
+									hidden: true,
+									label: "Genre №4",
+									options:{
+										body: {
+											template: "#genre#",
+											url:"http://localhost:3016/genres",
+										}
+									},
+								},
+							]
 						},
 						{
 							view: "button",

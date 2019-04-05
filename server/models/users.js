@@ -14,10 +14,10 @@ module.exports = (sequelize, type) => {
 		email: {
 			type: type.STRING
 		},
-		role_id: {
-			type: type.INTEGER,
-			defaultValue: 1
-		}
+		// roleUuid: {
+		// 	type: type.INTEGER,
+		// 	defaultValue: 1
+		// }
 	}, 
 	{
 		hooks: {

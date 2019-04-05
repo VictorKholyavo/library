@@ -2,13 +2,12 @@ const Sequelize = require('sequelize');
 
 module.exports = (sequelize, type) => {
 	return sequelize.define("roles", {
-		id: {
-			type: type.INTEGER,
-			autoIncrement: true,
+		uuid: {
+			type: Sequelize.UUID,
 			primaryKey: true
 		},
 		role: {
-			type: type.STRING
+			type: type.STRING,
 		}
 	});
 };

@@ -24,15 +24,18 @@ const sequelize = new Sequelize("library", "root", "", {
 const Users = UsersModel(sequelize, Sequelize);
 const UsersDetailes = UsersDetailesModel(sequelize, Sequelize);
 const Roles = RolesModel(sequelize, Sequelize);
-Users.hasOne(UsersDetailes, {foreignKey: "user_id"});
-Users.hasOne(Roles, {foreignKey: "id"});
+Users.hasOne(UsersDetailes);
+Users.belongsTo(Roles);
 
 //BOOKS AND GENRES//
 const Books = BooksModel(sequelize, Sequelize);
 const Genres = GenresModel(sequelize, Sequelize);
-Genres.belongsToMany(Books, {through: "GenresBooks", as: "books"});
-Books.belongsToMany(Genres, {through: "GenresBooks", as: "genres"});
-
+// const GenresBooks = sequelize.define("genresbooks", {
+// });
+Genres.belongsToMany(Books, {through: "GenresBooks"});
+Books.belongsToMany(Genres, {through: "GenresBooks"});
+// GenresBooks.belongsTo(Genres);
+// GenresBooks.belongsTo(Books);
 
 // const Phones = PhonesModel(sequelize, Sequelize);
 // Users.hasMany(Phones, {foreignKey: 'id', sourceKey: 'phone'});

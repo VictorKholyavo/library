@@ -5,6 +5,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const UsersController = require("./server/controllers/users");
 const UsersDetailesController = require("./server/controllers/usersDetailes");
+const RolesController = require("./server/controllers/roles");
 const GenresController = require("./server/controllers/genres");
 const BooksController = require("./server/controllers/books");
 // const PhonesController = require("./server/controllers/phones");
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 
 app.use("/users", UsersController);
 app.use("/usersdetailes", UsersDetailesController);
+app.use("/roles", RolesController);
 
 app.use("/genres", GenresController);
 app.use("/books", BooksController);

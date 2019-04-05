@@ -33,8 +33,8 @@ module.exports = (sequelize, type) => {
 		cardnumber: {
 			type: type.INTEGER
 		},
-		user_id: {
-			type: type.INTEGER
-		}
+		// user_id: {
+		// 	type: type.INTEGER
+		// }
 	});
 };

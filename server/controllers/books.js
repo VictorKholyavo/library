@@ -5,57 +5,79 @@ const { Books, Genres } = require("../../sequelize");
 // BOOKS //
 
 app.get("/", async (req, res) => {
-    const books = await Books.findAll({include: [Genres]});
-    console.log(users)
+    const books = await Books.findAll({include: [Genres]}).then(booksBooks => {
+        booksBooks.map(function (book) {
+            book = book.dataValues;            
+            book.genres.map(function (genreOfOneBook) {
+                let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
+                genreOfOneBook = genre;
+                console.log(genreOfOneBook);
+                
+                return genreOfOneBook
+            });
+            console.log(book);
+            
+            return book
+            // book.map(function (genre) {
+            //     console.log(genre);
+                
+            // })
+            // console.log(book.dataValues.genres);
+        });
+        res.json(booksBooks);
+
+    })
+        // console.log(booksBooks.getGenres())
+        // booksBooks.getGenres().then(function (genres) {
+        //     console.log(genres)
+        // });
+
+    // console.log(books.getGenres())
+
+    // books.map(function (book) {
+    //     console.log(book.dataValues);
+    //     console.log(book.dataValues.genres);
+    // })
     // const usersToAdmin = users.map(function(user) {
     //     let role = user.dataValues.role;
     //     user = user.usersdetaile.dataValues;
     //     user.role = role;
     //     return user;
     // });
-    res.json(usersToAdmin);
+    // Promise.all(books).then((completed) => console.log(books.getGenres()));
+    // res.json(books);
 });
 app.put("/:id", async (req, res) => {
-    let updateUserDetailes = {
-        firstname: req.body.firstname,
-        surname: req.body.surname,
-        patronymic: req.body.patronymic,
-        passport: req.body.passport,
-        dateofbirth: req.body.dateofbirth,
-        address: req.body.address,
-        phones: req.body.phones,
-        cardnumber: req.body.cardnumber,
+    let updateBook = {
+        title: req.body.title,
+        pages: req.body.pages,
+        year: req.body.year,
+        author: req.body.author,
+        publisher: req.body.publisher,
+        country: req.body.country,
+        availableCount: req.body.availableCount
     }
     let options = {
         where: {id: req.body.id}
     }
-    UsersDetailes.update(updateUserDetailes, options)
-        .then(function (rowsUpdate, [updatedUserDetailes]) {
-            return res.json(updatedUserDetailes)
+    Books.update(updateBook, options)
+        .then(function (rowsUpdate, [updatedBook]) {
+            return res.json(updatedBook)
         });
-
-    // const users = await Users.findAll({include: [UsersDetailes]});
-    // const usersToAdmin = users.map(function(user) {
-    //     let role = user.dataValues.role;
-    //     user = user.usersdetaile.dataValues;
-    //     user.role = role;
-    //     return user;
-    // });
-    // res.json(usersToAdmin);
 });
 
 app.post("/add", async (req, res) => {
     try {
         let newBook = req.body;
-        Books.create(newBook).then((book) => {
-            console.log(book.dataValues)
-            Genres.findOne({
-                where: {id: req.body.genre}
-            }).then((genre) => {
-                console.log(genre.dataValues)
-                genre.addBooks([book.dataValues.id])
-            })
-        });
+        console.log(newBook);
+        
+        // Books.create(newBook).then((book) => {
+        //     Genres.findOne({
+        //         where: {id: req.body.genre}
+        //     }).then((genre) => {
+        //         genre.addBook(book.dataValues.id)
+        //     })
+        // });
     } catch (error) {
         
     }

@@ -17,6 +17,7 @@ export default class TopView extends JetView {
 			select: true,
 			template: "<span class='webix_icon #icon#'></span> #value# ",
 			data: [
+				{ value: "Library", id: "librarian.library", icon: "wxi-columns" },
 				{ value: "Add Book", id: "librarian.addBook", icon: "wxi-columns" }
 			]
 		};
@@ -38,6 +39,7 @@ export default class TopView extends JetView {
 							cols: [
 								{ view: "template", localId: "helloTemplate", template: " ", width: 240},
 								{},
+								{ view: "button", value: "Personal Information", width: 250, click: () => {this.show("personalPage")} },
 								{ view: "button", value: "Logout", width: 150, click: () => {this.do_logout(); window.location.reload(true); }}
 							],
 							css: "webix_dark"

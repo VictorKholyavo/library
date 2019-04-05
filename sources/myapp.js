@@ -23,6 +23,7 @@ export default class MyApp extends JetApp{
 			try {
 				let userInfo = JSON.parse(getUser());
 				console.log(userInfo.role);
+				console.log(typeof(userInfo.role));
 				switch(userInfo.role) {
 					case "3": 
 						if (url.indexOf("/reader") !== -1 || url.indexOf("/librarian") !== -1 || url.indexOf("/top") !== -1) {

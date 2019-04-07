@@ -1,4 +1,5 @@
 import {JetView} from "webix-jet";
+let counter = null;
 
 export default class PersonalPageView extends JetView{
 	config(){
@@ -43,12 +44,14 @@ export default class PersonalPageView extends JetView{
 					label: "Address",
 					labelWidth: 100
 				},
-				{
-					view: "text",
-					name: "phones",
-					label: "Phones",
-					labelWidth: 100
-				},
+				{},
+			],
+			rules: {
+				$all: webix.rules.isNotEmpty
+			}
+		}
+		const button = {
+			cols: [
 				{
 					view: "button",
 					localId: "updateButton",
@@ -58,46 +61,56 @@ export default class PersonalPageView extends JetView{
 						this.savePersonalInformation(newValues);
 					}
 				},
-			],
-			rules: {
-				$all: webix.rules.isNotEmpty
-			}
+				{
+					view: "button",
+					value: "Add one more phone",
+					click: () => {
+						console.log(counter);
+						if (counter < 4) {
+							counter++;
+							this.$getForm().addView({
+								view: "text",
+								label: "Phone "+counter,
+								labelWidth: 100,
+								name: "phone"+counter
+							});
+						}
+						else {
+							webix.message({type: "error", text: "Max phones: 4"});
+						}
+					}
+				}
+			]
 		}
-		return { 
-			cols: [{}, {rows: [{}, form, {}]}, {}]
-			// view:"datatable",
-			// editable: true, 
-			// columns: [
-			// 	{id: "firstname", header: "firstname", editor: "text"},
-			// 	{id: "surname", header: "surname", editor: "text"},
-			// 	{id: "patronymic", header: "patronymic", editor: "text"},
-			// 	{id: "passport", header: "passport", editor: "text"},
-			// 	{id: "dateofbirth", header: "dateofbirth"},
-			// 	{id: "address", header: "address", editor: "text"},
-			// 	{id: "phones", header: "phones"},
-			// 	{id: "cardnumber", header: "cardnumber", editor: "text"},
-			// 	{id: "role", header: "Role"},
-			// ],
-			// url: "http://localhost:3016/users/:id",
-			// save: {
-			// 	url: "rest->http://localhost:3016/users",
-			// 	updateFromResponse: true
-			// },
-			// css:"webix_shadow_medium" 
+		return {
+			cols: [{}, {rows: [{}, form, button, {}]}, {}]
 		};
 	}
 	$getForm() {
 		return this.$$("form");
 	}
 	savePersonalInformation(newValues) {
-		webix.ajax().put("http://localhost:3016/users/user" + newValues.id + "", newValues);
+		webix.ajax().put("http://localhost:3016/users/user/:" + newValues.id, newValues).then(function (response) {
+			response = response.json();
+			webix.message({type: "success", text: "Your information has been updated"})
+		});
 	}
 	init(){
 		let form = this.$getForm();
 		webix.ajax().get("http://localhost:3016/users/user/:id").then(function (response) {
 			response = response.json();
+			response.phones.map(function (phone, index) {
+				response["phone"+(index+1)] = phone.phone;
+				form.addView({
+					view: "text",
+					value: phone.phone,
+					label: "Phone "+(index+1),
+					labelWidth: 100,
+					name: "phone"+(index+1)
+				});
+			});
 			form.setValues(response);
+			counter = response.phones.length;
 		});
-        
 	}
 }

@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { Users, UsersDetailes } = require("../../sequelize");
+const { User, UserDetailes, Phones } = require("../../sequelize");
 const jwt = require('jsonwebtoken');
 const passportJWT = require("passport-jwt");
 const LocalStrategy = require("passport-local").Strategy;
@@ -14,7 +14,7 @@ passport.use(new JWTStrategy({
     secretOrKey   : "secret for library"
   },
     function (jwtPayload, cb) {
-        return Users.findOne({
+        return User.findOne({
             where: {id: jwtPayload.id}
                 }).then(user => {
                     return cb(null, user.dataValues);
@@ -27,7 +27,7 @@ passport.use(new JWTStrategy({
 
 passport.use(new LocalStrategy({ usernameField: "email" },
   function (username, password, done) {
-        Users.findOne({
+        User.findOne({
             where: {email: username}
         }).then(user => {
             if (!user) {
@@ -69,7 +69,7 @@ app.post("/login/status", passport.authenticate('jwt', {session: false}), async 
 });
 
 app.get("/getInfo", passport.authenticate('jwt', {session: false}), async (req, res, next) => {
-    const userDetailes = await Users.findOne({where: {id: req.user.id}, include: [UsersDetailes]});
+    const userDetailes = await User.findOne({where: {id: req.user.id}, include: [UserDetailes]});
     return res.json(userDetailes.usersdetaile.dataValues);
 })
 
@@ -81,13 +81,13 @@ app.post("/logout", (req, res) => {
 
 // ADMIN //
 app.get("/", async (req, res) => {
-    const usersToAdmin = await Users.findAll({include: [UsersDetailes]});
+    const usersToAdmin = await Users.findAll({include: [UserDetailes]});
     return res.json(usersToAdmin.map((user) => {
         let role = user.dataValues.roleUuid;
         user = user.usersdetaile.dataValues;
         user.role = role;
         return user;
-    })); 
+    }));
     // const usersToAdmin = users.map(function(user) {
     //     let role = user.dataValues.role;
     //     user = user.usersdetaile.dataValues;
@@ -97,7 +97,6 @@ app.get("/", async (req, res) => {
     // res.json(usersToAdmin);
 });
 app.put("/:id", async (req, res) => {
-    console.log(req.body)
     let updateUserDetailes = {
         firstname: req.body.firstname,
         surname: req.body.surname,
@@ -117,44 +116,66 @@ app.put("/:id", async (req, res) => {
     let optionsUserRole = {
         where: {id: req.body.userId}
     }
-    UsersDetailes.update(updateUserDetailes, optionsUserDetailes)
+    UserDetailes.update(updateUserDetailes, optionsUserDetailes)
         .then(function (rowsUpdate, [updatedUserDetailes]) {
             // return res.json(updatedUserDetailes)
         });
-    Users.update(updateUserRole, optionsUserRole)
+    User.update(updateUserRole, optionsUserRole)
             .then(function (rowsUpdate, [updatedUserRole]) {
                 return res.json(updatedUserRole)
             });
-    
-
-    
-    
 });
 
 // USERS //
 app.get("/user/:id", passport.authenticate('jwt', {session: false}), async (req, res, next) => {
-    const userDetailes = await Users.findOne({where: {id: req.user.id}, include: [UsersDetailes]});
-    return res.json(userDetailes.usersdetaile.dataValues);
+    const userInfo = await User.findOne({where: {id: req.user.id}, include: [UserDetailes, Phones]});
+    // console.log(userDetailes.phones);
+    let counter = 1;
+    userInfo.userdetaile.dataValues.phones = [];
+    let userPhones = userInfo.phones.map(function (phone) {
+      phone = phone.dataValues;
+      // phone.$id = "phone"+counter+"";
+      // userInfo.userdetaile.dataValues["phone"+counter+""] = phone.phone;
+      userInfo.userdetaile.dataValues.phones.push(phone);
+      // userInfo.userdetaile.dataValues.PhonesCount = counter;
+      counter++;
+      return phone
+    });
+    return res.json(userInfo.userdetaile.dataValues);
 });
 
-app.put("/user/:id", async (req, res) => {
-    let updateUserDetailes = {
-        firstname: req.body.firstname,
-        surname: req.body.surname,
-        patronymic: req.body.patronymic,
-        passport: req.body.passport,
-        dateofbirth: req.body.dateofbirth,
-        address: req.body.address,
-        phones: req.body.phones,
-        cardnumber: req.body.cardnumber,
-    }
-    let options = {
-        where: {id: req.body.id}
-    }
-    UsersDetailes.update(updateUserDetailes, options)
-        .then(function (rowsUpdate, [updatedUserDetailes]) {
-            return res.json(updatedUserDetailes)
-        });
+app.put("/user/:id", passport.authenticate('jwt', {session: false}), async (req, res) => {
+  const userInfo = await User.findOne({where: {id: req.user.id}, include: [UserDetailes, Phones]});
+
+  let updateUserDetailes = {
+      firstname: req.body.firstname,
+      surname: req.body.surname,
+      patronymic: req.body.patronymic,
+      passport: req.body.passport,
+      dateofbirth: req.body.dateofbirth,
+      address: req.body.address,
+      cardnumber: req.body.cardnumber,
+  }
+  let options = {
+      where: {id: req.body.id}
+  }
+  let phonesFromRequest = [];
+  phonesFromRequest.push(req.body.phone1 || null, req.body.phone2 || null, req.body.phone3 || null, req.body.phone4 || null);
+  phonesFromRequest.map(function (phone, index, array) {
+    userInfo.getPhones().then(function (phonesFromDB) {
+      if (phonesFromDB[index] && index < 4) {
+        Phones.update({phone: req.body["phone"+(index+1)]}, {where: {id: phonesFromDB[index].dataValues.id}});
+      }
+      else if (phone !== null && index < 4) {
+        Phones.create({phone: req.body["phone"+(index+1)], userId: req.body.userId});
+      }
+    });
+  });
+
+  UserDetailes.update(updateUserDetailes, options)
+      .then(function (updatedUserDetailes) {
+        return res.json(updatedUserDetailes[0])
+      });
 });
 
 // let orderDirection = "";
@@ -180,19 +201,21 @@ app.put("/user/:id", async (req, res) => {
 app.post("/registration", async (req, res) => {
     try {
         let newUser = req.body;
-        Users.create(newUser)
+        newUser.roleUuid = 1;
+        console.log(newUser);
+        User.create(newUser)
             .then((newUser) => {
                 console.log(newUser.dataValues.id)
                 let userDetailes = {userId: newUser.dataValues.id}
-                UsersDetailes.create(userDetailes). 
+                UserDetailes.create(userDetailes).
                     then((newUser) => {
                         res.send("You have been registered");
                     });
             });
     } catch (error) {
-        
+
     }
-	
+
 });
 
 

@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
 
 module.exports = (sequelize, type) => {
-	return sequelize.define("users", {
+	return sequelize.define("user", {
 		id: {
 			type: type.INTEGER,
 			autoIncrement: true,
@@ -18,7 +18,7 @@ module.exports = (sequelize, type) => {
 		// 	type: type.INTEGER,
 		// 	defaultValue: 1
 		// }
-	}, 
+	},
 	{
 		hooks: {
 			beforeCreate: function(user, options) {

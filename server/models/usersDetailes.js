@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 module.exports = (sequelize, type) => {
-	return sequelize.define("usersdetailes", {
+	return sequelize.define("userdetailes", {
 		id: {
 			type: type.INTEGER,
 			autoIncrement: true,
@@ -27,9 +27,9 @@ module.exports = (sequelize, type) => {
 		address: {
 			type: type.STRING
 		},
-		phones: {
-			type: type.INTEGER
-		},
+		// phones: {
+		// 	type: type.INTEGER
+		// },
 		cardnumber: {
 			type: type.INTEGER
 		},

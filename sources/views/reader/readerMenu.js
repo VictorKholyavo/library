@@ -7,26 +7,26 @@ export default class TopView extends JetView {
 		};
 
 		var menu = {
-			view: "menu", 
+			view: "menu",
 			localId: "top:readermenu",
 			css: "app_menu",
 			width: 180, layout: "y", select: true,
 			template: "<span class='webix_icon #icon#'></span> #value# ",
 			data: [
-				{ value: "Users", id: "reader.library", icon: "wxi-columns" },
+				{ value: "Library", id: "reader.library", icon: "wxi-columns" },
 			]
 		};
 
 		var ui = {
-			type: "clean", 
-			paddingX: 5, 
-			css: "app_layout", 
+			type: "clean",
+			paddingX: 5,
+			css: "app_layout",
 			rows: [
-				{ 
-					paddingX: 5, 
-					paddingY: 10, 
+				{
+					paddingX: 5,
+					paddingY: 10,
 					rows: [
-						{ 
+						{
 							type: "toolbar",
 							localId: "toolbar",
 							margin: 20,
@@ -42,18 +42,18 @@ export default class TopView extends JetView {
 						{
 							css: "webix_shadow_medium",
 							cols: [
-								menu,								 
+								menu,
 								{
 									$subview: true
 								}
 							]
 						}
-					] 
+					]
 				},
 				{
-					type: "wide", 
-					paddingY: 10, 
-					paddingX: 5, 
+					type: "wide",
+					paddingY: 10,
+					paddingX: 5,
 					rows: []
 				}
 			]

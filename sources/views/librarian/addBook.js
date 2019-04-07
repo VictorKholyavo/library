@@ -51,7 +51,7 @@ export default class FormforBookView extends JetView {
 							label: "Available count",
 							labelWidth: 120,
 						},
-						{	
+						{
 							margin: 40,
 							cols: [
 								{
@@ -62,7 +62,7 @@ export default class FormforBookView extends JetView {
 									on: {
 										onChange: () => {
 											this.$$("genre2").show();
-										},	
+										},
 									},
 									options:{
 										body: {
@@ -80,7 +80,7 @@ export default class FormforBookView extends JetView {
 									on: {
 										onChange: () => {
 											this.$$("genre3").show();
-										},	
+										},
 									},
 									options:{
 										body: {
@@ -98,7 +98,7 @@ export default class FormforBookView extends JetView {
 									on: {
 										onChange: () => {
 											this.$$("genre4").show();
-										},	
+										},
 									},
 									options:{
 										body: {
@@ -123,15 +123,46 @@ export default class FormforBookView extends JetView {
 							]
 						},
 						{
+							view:"uploader",
+							localId:"uploader_1",
+							value: "Upload file",
+							upload: "http://localhost:3016/file/text",
+							autosend: false,
+							name: "textfile",
+							accept:"image/png, image/gif, image/jpg",
+							multiple: false,
+							on: {
+								onBeforeFileAdd: (item) => {
+									console.log(item);
+								},
+								onFileUpload: (response) => {
+									console.log('asdasdsda');
+									webix.storage.local.put("text", response.path);
+									// this.$$("text").setValues({src: response.path});
+								}
+							}
+						},
+						{
+							view: "list",
+							type: "uploader"
+						},
+						{
 							view: "button",
 							localId: "saveButton",
 							value: "Save",
 							click: () => {
+								this.$$("uploader_1").files.data.each(function (obj) {
+									console.log(obj);
+									webix.ajax().post("http://localhost:3016/file/text", obj).then(function (response) {
+										console.log(response);
+									})
+								})
 								const values = this.$getForm().getValues();
-								this.saveProduct(values);
+								console.log(values);
+								// this.saveProduct(values);
 							}
 						}
-					
+
 						// {
 						// 	view: "richselect",
 						// 	name: "type",

@@ -1,12 +1,12 @@
 const express = require("express");
 const app = express();
-const { UsersDetailes } = require("../../sequelize");
+const { UserDetailes } = require("../../sequelize");
 
 
 // app.get("/", async (req, res) => {
 app.get("/", async (req, res) => {
-    const usersDetailes = await UsersDetailes.findAll();
-    res.send(usersDetailes);
+    const userDetailes = await UserDetailes.findAll();
+    res.send(userDetailes);
 });
 // let orderDirection = "";
 // let orderColumn = "";
@@ -27,17 +27,17 @@ app.get("/", async (req, res) => {
 //     res.json({"pos": +req.query.start, "data": data, "total_count": +count})
 // })
 // });
-app.get("/addUserDetailes", (req, res) => {
-    let datedate = new Date();
-    // let userDetailes = {email: "a@a.com", password: "admin"}
-    let userDetailes = {firstname: "admin", surname: "admin", patronymic: "a", passport: "asd", dateofbirth: datedate, address: "a", 
-    phones: "123", cardnumber: "123", user_id: 2};
-    UsersDetailes.create(userDetailes). 
-        then(userDetailes => res.json(userDetailes));
-	// let employee = req.body;
-	// Users.create(employee)
-	// 	.then(employee => res.json(employee))
-});
+// app.get("/addUserDetailes", (req, res) => {
+//     let datedate = new Date();
+//     // let userDetailes = {email: "a@a.com", password: "admin"}
+//     let userDetailes = {firstname: "admin", surname: "admin", patronymic: "a", passport: "asd", dateofbirth: datedate, address: "a",
+//     phones: "123", cardnumber: "123", user_id: 2};
+//     UsersDetailes.create(userDetailes).
+//         then(userDetailes => res.json(userDetailes));
+// 	// let employee = req.body;
+// 	// Users.create(employee)
+// 	// 	.then(employee => res.json(employee))
+// });
 
 // app.put("/:id", (req, res) => {
 // 	let values = {

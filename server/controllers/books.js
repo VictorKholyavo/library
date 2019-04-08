@@ -1,52 +1,36 @@
 const express = require("express");
 const app = express();
-const { Books, Genres } = require("../../sequelize");
+const multer  = require("multer");
+const { Books, Genres, Cover } = require("../../sequelize");
+
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, "./public/uploads");
+	},
+	filename: function (req, file, cb) {
+		cb(null, file.originalname);
+	}
+});
+
+const upload = multer({ storage: storage });
 
 // BOOKS //
 
 app.get("/", async (req, res) => {
-    const books = await Books.findAll({include: [Genres]}).then(booksBooks => {
+    const books = await Books.findAll({include: [Genres, Cover]}).then(booksBooks => {
         booksBooks.map(function (book) {
             book = book.dataValues;            
             book.genres.map(function (genreOfOneBook) {
                 let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
                 genreOfOneBook = genre;
-                console.log(genreOfOneBook);
-                
                 return genreOfOneBook
-            });
-            console.log(book);
-            
-            return book
-            // book.map(function (genre) {
-            //     console.log(genre);
-                
-            // })
-            // console.log(book.dataValues.genres);
+            });            
+            return book;
         });
         res.json(booksBooks);
-
-    })
-        // console.log(booksBooks.getGenres())
-        // booksBooks.getGenres().then(function (genres) {
-        //     console.log(genres)
-        // });
-
-    // console.log(books.getGenres())
-
-    // books.map(function (book) {
-    //     console.log(book.dataValues);
-    //     console.log(book.dataValues.genres);
-    // })
-    // const usersToAdmin = users.map(function(user) {
-    //     let role = user.dataValues.role;
-    //     user = user.usersdetaile.dataValues;
-    //     user.role = role;
-    //     return user;
-    // });
-    // Promise.all(books).then((completed) => console.log(books.getGenres()));
-    // res.json(books);
+    });
 });
+
 app.put("/:id", async (req, res) => {
     let updateBook = {
         title: req.body.title,
@@ -61,23 +45,67 @@ app.put("/:id", async (req, res) => {
         where: {id: req.body.id}
     }
     Books.update(updateBook, options)
-        .then(function (rowsUpdate, [updatedBook]) {
-            return res.json(updatedBook)
+        .then(function (updatedBook) {
+            // return res.json(updatedBook[0])
         });
+    let sendData = [];
+    Books.findOne({where: {id: req.body.id}, include: [Genres] }).then((book) => {
+        
+        book.genres.map(function (genre) {
+            genre.removeBook(req.body.id)
+        })
+        let genresOfUpdatedBook = [];
+        for (const key in req.body) {
+            if (key.substring(0, 5) === "genre" && key.substring(5, 6) !== "s") {              
+                genresOfUpdatedBook.push(req.body[key]);
+            }
+        }
+        genresOfUpdatedBook.map((genreOfUpdatedBook) => {
+            Genres.findOne({where: {id: genreOfUpdatedBook}})
+                .then((genre) => {
+                    genre.addBook(req.body.id);
+                });
+        })
+        Promise.all(genresOfUpdatedBook).then((completed) => console.log(completed));
+    });
+    return 
+    // .then((book) => {
+    //     book = book.dataValues;
+    //     console.log(book.genres);
+        
+    //     // book.genres.map(function (genreOfOneBook) {
+    //     //     let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
+    //     //     genreOfOneBook = genre;
+    //     //     return genreOfOneBook
+    //     // });
+    //     // return res.send(book)
+    // })
 });
 
-app.post("/add", async (req, res) => {
+app.post("/add", upload.single("upload"), async (req, res) => {
     try {
         let newBook = req.body;
-        console.log(newBook);
         
-        // Books.create(newBook).then((book) => {
-        //     Genres.findOne({
-        //         where: {id: req.body.genre}
-        //     }).then((genre) => {
-        //         genre.addBook(book.dataValues.id)
-        //     })
-        // });
+        Books.create(newBook).then((book) => {
+            let genresOfNewBook = [];
+            for (const key in newBook) {
+                if (key.substring(0, 5) === "genre") {              
+                    genresOfNewBook.push(newBook[key]);
+                }
+            }
+            genresOfNewBook.map(function (genreOfNewBook) {
+                Genres.findOne({where: {id: genreOfNewBook}})
+                .then((genre) => {
+                    genre.addBook(book.dataValues.id);
+                })
+            });
+            return book
+        })
+        .then((book) => {
+            let path = req.file.destination + "/" + req.file.filename;
+            book.createCover({path: path, fileType: req.file.mimetype, bookId: book.dataValues.id});
+            res.send(book);
+        });
     } catch (error) {
         
     }

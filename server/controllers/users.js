@@ -81,7 +81,7 @@ app.post("/logout", (req, res) => {
 
 // ADMIN //
 app.get("/", async (req, res) => {
-    const usersToAdmin = await Users.findAll({include: [UserDetailes]});
+    const usersToAdmin = await User.findAll({include: [UserDetailes]});
     return res.json(usersToAdmin.map((user) => {
         let role = user.dataValues.roleUuid;
         user = user.usersdetaile.dataValues;
@@ -131,6 +131,8 @@ app.get("/user/:id", passport.authenticate('jwt', {session: false}), async (req,
     const userInfo = await User.findOne({where: {id: req.user.id}, include: [UserDetailes, Phones]});
     // console.log(userDetailes.phones);
     let counter = 1;
+    console.log(userInfo);
+    
     userInfo.userdetaile.dataValues.phones = [];
     let userPhones = userInfo.phones.map(function (phone) {
       phone = phone.dataValues;
@@ -141,6 +143,8 @@ app.get("/user/:id", passport.authenticate('jwt', {session: false}), async (req,
       counter++;
       return phone
     });
+    // console.log(userPhones);
+    
     return res.json(userInfo.userdetaile.dataValues);
 });
 
@@ -161,6 +165,8 @@ app.put("/user/:id", passport.authenticate('jwt', {session: false}), async (req,
   }
   let phonesFromRequest = [];
   phonesFromRequest.push(req.body.phone1 || null, req.body.phone2 || null, req.body.phone3 || null, req.body.phone4 || null);
+  
+  
   phonesFromRequest.map(function (phone, index, array) {
     userInfo.getPhones().then(function (phonesFromDB) {
       if (phonesFromDB[index] && index < 4) {

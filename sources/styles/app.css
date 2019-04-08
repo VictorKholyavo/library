@@ -56,3 +56,20 @@
 	font-size:20px;
 	vertical-align:middle;
 }
+.photo {
+	display: block;
+	padding-top: 10px;
+	width: 150px;
+	text-align: center;
+}
+.defaultPhoto {
+	background-color: lightgrey;
+	width: 75px;
+	height: 75px;
+}
+.smallPhoto {
+	width: 37px;
+}
+.spacerOfAddBook {
+    background-color: white;
+}

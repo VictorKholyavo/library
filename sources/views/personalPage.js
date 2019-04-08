@@ -65,7 +65,6 @@ export default class PersonalPageView extends JetView{
 					view: "button",
 					value: "Add one more phone",
 					click: () => {
-						console.log(counter);
 						if (counter < 4) {
 							counter++;
 							this.$getForm().addView({
@@ -108,7 +107,7 @@ export default class PersonalPageView extends JetView{
 					labelWidth: 100,
 					name: "phone"+(index+1)
 				});
-			});
+			});			
 			form.setValues(response);
 			counter = response.phones.length;
 		});

@@ -6,8 +6,18 @@ export default class DataView extends JetView{
 			view: "datatable",
 			localId: "library",
 			select: true,
+			rowHeight: 80,
 			columns: [
-				{ id: "id", header: "id of book" },
+				{id: "image", header: "Image", width: 100, template: (obj) => {
+					let photo = "";
+					if (obj.cover == "") {
+						photo = "<img class='defaultPhoto'>";
+					}
+					else {
+						photo = "<img src ="+obj.cover.path+" class='smallPhoto'>";
+					}
+					return "<div class='columnSettings'>"+ photo +"</div>";
+				}},
 				{ id: "title", header: "Title", fillspace: true },
 				{ id: "pages", header: "Pages" },
 				{ id: "year", header: "Year" },

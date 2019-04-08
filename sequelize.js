@@ -5,7 +5,8 @@ const RolesModel = require("./server/models/roles");
 const GenresModel = require("./server/models/genres");
 const BooksModel = require("./server/models/books");
 const PhonesModel = require("./server/models/phones");
-const FilesModel = require("./server/models/files");
+const CoverModel = require("./server/models/cover");
+const TextFilesModel = require("./server/models/textFiles");
 
 const sequelize = new Sequelize("library", "root", "", {
 	host: "localhost",
@@ -30,19 +31,18 @@ User.hasOne(UserDetailes);
 User.belongsTo(Roles);
 User.hasMany(Phones);
 
-//BOOKS AND GENRES//
+//BOOKS, GENRES, COVERS OF BOOKS, TEXT AND AUDIO FILES//
 const Books = BooksModel(sequelize, Sequelize);
 const Genres = GenresModel(sequelize, Sequelize);
-const Files = FilesModel(sequelize, Sequelize);
-// const GenresBooks = sequelize.define("genresbooks", {
-// });
+const Cover = CoverModel(sequelize, Sequelize);
+const TextFiles = TextFilesModel(sequelize, Sequelize);
 Genres.belongsToMany(Books, {through: "GenresBooks"});
 Books.belongsToMany(Genres, {through: "GenresBooks"});
-Books.hasMany(Files);
-// GenresBooks.belongsTo(Genres);
-// GenresBooks.belongsTo(Books);
+Books.hasOne(Cover);
+Cover.belongsTo(Books);
+Books.hasMany(TextFiles);
+TextFiles.belongsTo(Books);
 
-// Phones.belongsTo(Users, {foreignKey: 'id', sourceKey: 'phone'});
 sequelize.sync()
 	.then(() => {
 		console.log("Database & tables created!")
@@ -55,5 +55,6 @@ module.exports = {
 	Books,
 	Genres,
 	Phones,
-	Files
+	Cover,
+	TextFiles
 };

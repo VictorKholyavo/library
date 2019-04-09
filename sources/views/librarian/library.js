@@ -11,6 +11,8 @@ export default class LibraryView extends JetView {
 			rowHeight: 80,
 			columns: [
 				{id: "image", header: "Image", width: 100, template: (obj) => {
+					console.log(obj);
+					
 					let photo = "";
 					if (obj.cover == "") {
 						photo = "<img class='defaultPhoto'>";

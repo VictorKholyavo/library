@@ -66,7 +66,50 @@ export default class FormforBookView extends JetView {
 				$all: webix.rules.isNotEmpty
 			}
 		};
-        
+		const uploaders = {
+			cols: [
+				{
+					rows: [
+						{
+							view:"uploader",
+							localId:"uploader_text",
+							value: "Upload texts",
+							link: "listOfTextFiles",
+							upload: "http://localhost:3016/books/uploadFiles",
+							autosend: false,
+							inputName: "text"
+						},
+						{
+							view: "list",
+							id: "listOfTextFiles",
+							type: "uploader",
+							autoheight:true, 
+							borderless:true	
+						},
+					]
+				},
+				{
+					rows: [
+						{
+							view:"uploader",
+							localId:"uploader_audio",
+							value: "Upload audio",
+							link: "listOfAudioFiles",
+							upload: "http://localhost:3016/books/uploadFiles",
+							autosend: false,
+							inputName: "audio",
+						},
+						{
+							view: "list",
+							id: "listOfAudioFiles",
+							type: "uploader",
+							autoheight:true, 
+							borderless:true	
+						},
+					]
+				}
+			]
+		};
 		const buttons = {
 			cols: [
 				{
@@ -99,7 +142,7 @@ export default class FormforBookView extends JetView {
 					}
 				}
 			]
-		}
+		};
 
 		return {
 			view: "window",
@@ -118,7 +161,7 @@ export default class FormforBookView extends JetView {
 					}
 				]
 			},
-			body: {rows: [form, buttons]},
+			body: {rows: [form, buttons, uploaders]},
 			on: {
 				onHide: () => {
 					this.$getForm().clear();
@@ -131,6 +174,8 @@ export default class FormforBookView extends JetView {
 		let formTemplate = this.$$("formTemplate");
 		this.getRoot().show();
 		let form = this.$getForm();
+		let uploader_text = this.$$("uploader_text");
+		let uploader_audio = this.$$("uploader_audio");
 		if (values) {
 			values.genres.map(function (genre, index) {
 				values["genre"+(index+1)] = genre.id;
@@ -147,15 +192,23 @@ export default class FormforBookView extends JetView {
 					},
 				});
 			});
-            this.$getForm().setValues(values);
-            counter = values.genres.length;
+			this.$getForm().setValues(values);
+			counter = values.genres.length;
 			formTemplate.define({ template: "Edit book" });
 		}
 		formTemplate.refresh();
 		this.onSubmit = function (data) {
-			// if (this.$getForm().validate()) {
-			filled(data);
-			// }
+			if (this.$getForm().validate()) {
+				uploader_text.files.data.each(function (obj) {
+					obj.formData = data;
+				});
+				uploader_text.send();
+				uploader_audio.files.data.each(function (obj) {
+					obj.formData = values;
+				});
+				uploader_audio.send();
+				filled(data);
+			}
 		};
 	}
 	init() {

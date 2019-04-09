@@ -6,7 +6,9 @@ const GenresModel = require("./server/models/genres");
 const BooksModel = require("./server/models/books");
 const PhonesModel = require("./server/models/phones");
 const CoverModel = require("./server/models/cover");
-const TextFilesModel = require("./server/models/textFiles");
+const BookFilesModel = require("./server/models/bookFiles");
+const UserOrderModel = require("./server/models/userOrder");
+const StatusModel = require("./server/models/status");
 
 const sequelize = new Sequelize("library", "root", "", {
 	host: "localhost",
@@ -35,13 +37,22 @@ User.hasMany(Phones);
 const Books = BooksModel(sequelize, Sequelize);
 const Genres = GenresModel(sequelize, Sequelize);
 const Cover = CoverModel(sequelize, Sequelize);
-const TextFiles = TextFilesModel(sequelize, Sequelize);
+const BookFiles = BookFilesModel(sequelize, Sequelize);
 Genres.belongsToMany(Books, {through: "GenresBooks"});
 Books.belongsToMany(Genres, {through: "GenresBooks"});
 Books.hasOne(Cover);
 Cover.belongsTo(Books);
-Books.hasMany(TextFiles);
-TextFiles.belongsTo(Books);
+Books.hasMany(BookFiles);
+BookFiles.belongsTo(Books);
+
+// USER ORDERS //
+const UserOrder = UserOrderModel(sequelize, Sequelize);
+const Status = StatusModel(sequelize, Sequelize);
+User.hasMany(UserOrder);
+Books.hasOne(UserOrder);
+UserOrder.belongsTo(Books);
+UserOrder.belongsTo(Status);
+UserOrder.belongsTo(User);
 
 sequelize.sync()
 	.then(() => {
@@ -56,5 +67,7 @@ module.exports = {
 	Genres,
 	Phones,
 	Cover,
-	TextFiles
+	BookFiles,
+	UserOrder,
+	Status
 };

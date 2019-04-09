@@ -2,22 +2,21 @@ import { JetView, plugins } from "webix-jet";
 
 export default class TopView extends JetView {
 	config() {
-		var header = {
-			type: "header", template: this.app.config.name, css: "webix_header app_header"
-		};
-
-		var menu = {
+		const menu = {
 			view: "menu",
 			localId: "top:readermenu",
 			css: "app_menu",
-			width: 180, layout: "y", select: true,
+			width: 180, 
+			layout: "y", 
+			select: true,
 			template: "<span class='webix_icon #icon#'></span> #value# ",
 			data: [
 				{ value: "Library", id: "reader.library", icon: "wxi-columns" },
+				{ value: "Ordered Books", id: "reader.orderedBooks", icon: "wxi-columns" },
 			]
 		};
 
-		var ui = {
+		const ui = {
 			type: "clean",
 			paddingX: 5,
 			css: "app_layout",
@@ -60,6 +59,9 @@ export default class TopView extends JetView {
 		};
 		return ui;
 	}
+	$getHelloTemplate() {
+		return this.$$("helloTemplate");
+	}
 	do_logout() {
 		const user = this.app.getService("user");
 		user.logout().catch(function () {
@@ -67,6 +69,9 @@ export default class TopView extends JetView {
 		});
 	}
 	init() {
+		let username = webix.storage.local.get("UserInfo").role;
+		this.$getHelloTemplate().define({template: "Hi, " + username + ". You are librarian"});
+		this.$getHelloTemplate().refresh();
 		this.use(plugins.Menu, this.$$("top:readermenu"));
 	}
 }

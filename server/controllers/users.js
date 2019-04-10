@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { User, UserDetailes, Phones } = require("../../sequelize");
+const { User, UserDetailes, Phones, Roles } = require("../../sequelize");
 const jwt = require('jsonwebtoken');
 const passportJWT = require("passport-jwt");
 const LocalStrategy = require("passport-local").Strategy;
@@ -54,6 +54,8 @@ app.post("/login", (req, res, next) => {
 				if (err) {
 					return next(err);
                 }
+                console.log(user);
+
                 const token = jwt.sign({id: user.id}, "secret for library");
 	            return res.json({token: token});
 			});
@@ -62,8 +64,9 @@ app.post("/login", (req, res, next) => {
 
 app.post("/login/status", passport.authenticate('jwt', {session: false}), async (req, res, next) => {
     if (req.user) {
+        const userDetailes = await User.findOne({where: {id: req.user.id}, include: [UserDetailes]});
 		let token = jwt.sign({id: req.user.id}, "secret for library");
-		return res.json({token: token, role: req.user.roleUuid});
+		return res.json({token: token, role: req.user.roleUuid, username: userDetailes.userdetaile.firstname});
 	}
 	return res.json(null);
 });
@@ -81,15 +84,17 @@ app.post("/logout", (req, res) => {
 
 // ADMIN //
 app.get("/", async (req, res) => {
-    const usersToAdmin = await User.findAll({include: [UserDetailes]});
+    const usersToAdmin = await User.findAll({include: [UserDetailes, Roles, Phones]});
     return res.json(usersToAdmin.map((user) => {
-        let role = user.dataValues.roleUuid;
-        user = user.usersdetaile.dataValues;
+        let role = user.role.dataValues;
+				let phonesCount = user.phones.length;
+        user = user.userdetaile.dataValues;
         user.role = role;
+				user.phonesCount = phonesCount;
         return user;
     }));
     // const usersToAdmin = users.map(function(user) {
-    //     let role = user.dataValues.role;
+    //     let role = user.roles.dataValues;
     //     user = user.usersdetaile.dataValues;
     //     user.role = role;
     //     return user;
@@ -117,34 +122,38 @@ app.put("/:id", async (req, res) => {
         where: {id: req.body.userId}
     }
     UserDetailes.update(updateUserDetailes, optionsUserDetailes)
-        .then(function (rowsUpdate, [updatedUserDetailes]) {
-            // return res.json(updatedUserDetailes)
+        .then(function (rowsUpdate) {
+            return;
         });
     User.update(updateUserRole, optionsUserRole)
-            .then(function (rowsUpdate, [updatedUserRole]) {
-                return res.json(updatedUserRole)
+            .then(function () {
+                User.findOne({where: {id: req.body.userId}, include: [UserDetailes, Roles]}).then(user => {
+                    user.reload().then((user) => {
+                        let role = user.role.dataValues;
+                        user = user.userdetaile.dataValues;
+                        user.role = role;
+                        console.log(user);
+
+                        return res.json(user);
+                    })
+                })
             });
 });
 
 // USERS //
+
 app.get("/user/:id", passport.authenticate('jwt', {session: false}), async (req, res, next) => {
     const userInfo = await User.findOne({where: {id: req.user.id}, include: [UserDetailes, Phones]});
-    // console.log(userDetailes.phones);
     let counter = 1;
     console.log(userInfo);
-    
+
     userInfo.userdetaile.dataValues.phones = [];
     let userPhones = userInfo.phones.map(function (phone) {
       phone = phone.dataValues;
-      // phone.$id = "phone"+counter+"";
-      // userInfo.userdetaile.dataValues["phone"+counter+""] = phone.phone;
       userInfo.userdetaile.dataValues.phones.push(phone);
-      // userInfo.userdetaile.dataValues.PhonesCount = counter;
       counter++;
       return phone
     });
-    // console.log(userPhones);
-    
     return res.json(userInfo.userdetaile.dataValues);
 });
 
@@ -165,8 +174,8 @@ app.put("/user/:id", passport.authenticate('jwt', {session: false}), async (req,
   }
   let phonesFromRequest = [];
   phonesFromRequest.push(req.body.phone1 || null, req.body.phone2 || null, req.body.phone3 || null, req.body.phone4 || null);
-  
-  
+
+
   phonesFromRequest.map(function (phone, index, array) {
     userInfo.getPhones().then(function (phonesFromDB) {
       if (phonesFromDB[index] && index < 4) {
@@ -183,26 +192,6 @@ app.put("/user/:id", passport.authenticate('jwt', {session: false}), async (req,
         return res.json(updatedUserDetailes[0])
       });
 });
-
-// let orderDirection = "";
-// let orderColumn = "";
-// if (req.query.sort) {
-// 	orderColumn = Object.keys(req.query.sort)[0];
-// }
-// for (const key in req.query.sort) {
-// 	if (req.query.sort.hasOwnProperty(key)) {
-// 		orderDirection = req.query.sort[key];
-// 	}
-// }
-// let sortColumn = req.query.sort ? [orderColumn, orderDirection] : ['id', 'ASC'];
-// let data = [];
-// if (req.query.start && req.query.count) {
-//     data = await Employees.findAll({order: [sortColumn], offset: +req.query.start, limit: +req.query.count});
-// }
-// Employees.count().then(function (count) {
-//     res.json({"pos": +req.query.start, "data": data, "total_count": +count})
-// })
-// });
 
 app.post("/registration", async (req, res) => {
     try {
@@ -221,39 +210,16 @@ app.post("/registration", async (req, res) => {
     } catch (error) {
 
     }
-
 });
 
+// LIBRARIAN //
 
-// app.put("/:id", (req, res) => {
-// 	let values = {
-// 		firstname: req.body.firstname,
-// 		surname: req.body.surname,
-// 		dateofbirth: req.body.dateofbirth,
-// 		salary: req.body.salary,
-// 	};
-// 	let options = {
-// 		where: { id: req.body.id }
-// 	};
-// 	Employees.update(values, options)
-// 		.then(function (rowsUpdate, [updatedEmployeer]) {
-// 			return res.json(updatedEmployeer);
-// 		});
-// });
-
-// app.delete("/:id", (req, res) => {
-// 	Employees.destroy({ where: { id: req.body.id } })
-// 		.then(function () {
-// 			return res.send(req.body.id);
-// 		});
-// });
-// app.get('/', (req, res) => {
-//     let sql = "SELECT * FROM employees";
-//     let query = db.query(sql, (err, results) => {
-//         if(err) throw err;
-//         console.log(results);
-//         res.json(results)
-//     })
-// });
+app.get("/readers", async (req, res) => {
+    const readersToLibrarian = await User.findAll({where: {roleUuid: 1}, include: [UserDetailes]});
+    return res.json(readersToLibrarian.map((user) => {
+        user = user.userdetaile.dataValues;
+        return user;
+    }));
+});
 
 module.exports = app;

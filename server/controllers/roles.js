@@ -8,6 +8,7 @@ app.get("/", async (req, res) => {
         let id = role.uuid;
         role = role.dataValues;
         role.id = id;
+        role.value = role.role;
         delete role.uuid;
         return role;
     }));

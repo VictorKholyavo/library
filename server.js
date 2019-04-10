@@ -13,6 +13,7 @@ const OrderController = require("./server/controllers/userOrder");
 // const { Users, Phones } = require('./sequelize');
 const CoverController = require("./server/controllers/cover");
 const StatusController = require("./server/controllers/status");
+const StartDataController = require("./server/controllers/startData");
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -28,6 +29,9 @@ app.use("/cover", CoverController);
 
 app.use("/order", OrderController);
 app.use("/status", StatusController);
+
+app.use("/startData", StartDataController);
+
 
 // app.use("/phones", PhonesController);
 

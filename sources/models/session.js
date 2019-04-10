@@ -18,7 +18,6 @@ function login(email, password){
 		email, password
 	}).then((a) => {
 		a = a.json();
-		console.log(a)
 		webix.storage.local.put("UserInfo", a);
 		return a;
 	});

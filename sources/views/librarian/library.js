@@ -6,13 +6,10 @@ export default class LibraryView extends JetView {
 		return {
 			view: "datatable",
 			localId: "library",
-			// editable: true,
 			select: true,
 			rowHeight: 80,
 			columns: [
 				{id: "image", header: "Image", width: 100, template: (obj) => {
-					console.log(obj);
-					
 					let photo = "";
 					if (obj.cover == "") {
 						photo = "<img class='defaultPhoto'>";
@@ -25,19 +22,24 @@ export default class LibraryView extends JetView {
 				{ id: "title", editor: "text", header: "Title", fillspace: true },
 				{ id: "pages", editor: "text", header: "Pages" },
 				{ id: "year", editor: "text", header: "Year" },
-				{ id: "author", editor: "text", header: "Author", fillspace: true },
+				{ id: "author", editor: "text", header: "Author", fillspace: true, template: (obj) => {
+					return obj.authorName + " " + obj.authorSurname
+				}
+				},
 				{ id: "genres", header: "Genres", fillspace: true, template: (obj) => {
+					console.log(obj);
 					let genres = " ";
 					genres = obj.genres.map(function (genre) {
-						return genre.genre;
+						return " " + genre.genre;
 					});
 					return genres;
-				}}, 
+				}},
 				{ id: "publisher", editor: "text", header: "Publisher" },
 				{ id: "country", editor: "text", header: "Country" },
 				{ id: "availableCount", editor: "text", header: "Available count" },
 			],
 			url: "http://localhost:3016/books",
+			datafetch: 25,
 			save: {
 				url: "rest->http://localhost:3016/books",
 				updateFromResponse: true
@@ -48,7 +50,6 @@ export default class LibraryView extends JetView {
 					const datatable = this.$getDatatable();
 					const values = datatable.getSelectedItem();
 					form.showWindow(values, function (data) {
-						console.log(data);
 						datatable.updateItem(data.id, data);
 						form.hide();
 					});

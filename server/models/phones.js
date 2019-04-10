@@ -8,7 +8,7 @@ module.exports = (sequelize, type) => {
 			primaryKey: true
 		},
 		phone: {
-			type: type.INTEGER
+			type: type.STRING
 		},
 	});
 };

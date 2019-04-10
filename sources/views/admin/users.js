@@ -8,18 +8,19 @@ export default class DataView extends JetView {
 			editable: true,
 			select: true,
 			columns: [
-				{ id: "userId", header: "id of user" },
-				{ id: "firstname", editor: "text", header: "Firstname" },
-				{ id: "surname", editor: "text", header: "Surname" },
-				{ id: "patronymic", editor: "text", header: "Patronymic" },
+				{ id: "userId", header: "id", width: 25 },
+				{ id: "firstname", editor: "text", header: "Firstname", fillspace: true },
+				{ id: "surname", editor: "text", header: "Surname", fillspace: true },
+				{ id: "patronymic", editor: "text", header: "Patronymic", fillspace: true },
 				{ id: "passport", editor: "text", header: "Passport" },
-				{ id: "dateofbirth", header: "Date of Birth" },
-				{ id: "address", header: "Address" },
-				{ id: "phones", header: "Phones" },
-				{ id: "cardnumber", header: "Card number", fillspace: true },
+				{ id: "dateofbirth", header: "Date of Birth", fillspace: true },
+				{ id: "address", header: "Address", fillspace: true },
+				{ id: "phonesCount", header: "Phones (count)" },
+				{ id: "cardnumber", header: "Card number" },
 				{
-					id: "role", header: "Role", fillspace: true, editor: "richselect", options: "http://localhost:3016/roles"
-						
+					id: "role", header: "Role", editor: "richselect", options: "http://localhost:3016/roles", template: (obj) => {
+						return obj.role.role;
+					}
 				},
 			],
 			url: "http://localhost:3016/users",
@@ -31,9 +32,5 @@ export default class DataView extends JetView {
 		};
 	}
 	init() {
-		webix.ajax().get("http://localhost:3016/roles").then((response) => {
-			response = response.json();
-			console.log(response)
-		})
 	}
 }

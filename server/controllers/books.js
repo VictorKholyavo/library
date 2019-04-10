@@ -3,6 +3,8 @@ const app = express();
 const multer  = require("multer");
 const moveFile = require('move-file');
 const { Books, Genres, Cover, BookFiles } = require("../../sequelize");
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
@@ -18,18 +20,41 @@ const upload = multer({ storage: storage });
 // BOOKS //
 
 app.get("/", async (req, res) => {
-    const books = await Books.findAll({include: [Genres, Cover]}).then(booksBooks => {
-        booksBooks.map(function (book) {
-            book = book.dataValues;            
-            book.genres.map(function (genreOfOneBook) {
-                let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
-                genreOfOneBook = genre;
-                return genreOfOneBook
-            });            
-            return book;
-        });
-        res.json(booksBooks);
-    });
+	let titleFilter = req.query.filter && req.query.filter.title ? {[Op.like]: '%'+req.query.filter.title+'%'} : {[Op.like]: '%%'};
+	let authorNameFilter = req.query.filter && req.query.filter.author ? {[Op.like]: '%'+req.query.filter.author+'%'} : {[Op.like]: '%%'};
+	let authorSurnameFilter = req.query.filter && req.query.filter.author ? {[Op.like]: '%'+req.query.filter.author+'%'} : {[Op.like]: '%%'};
+	let authorPatronymicFilter = req.query.filter && req.query.filter.author ? {[Op.like]: '%'+req.query.filter.author+'%'} : {[Op.like]: '%%'};
+	let data = [];
+	if (req.query.start && req.query.count) {
+			data = await Books.findAll({where: {title: titleFilter, [Op.or]: [{authorName: authorNameFilter}, {authorSurname: authorSurnameFilter}, {authorPatronymic: authorPatronymicFilter}]}, offset: +req.query.start, limit: +req.query.count, include: [Genres, Cover]}).then(booksBooks => {
+	        booksBooks.map(function (book) {
+	            book = book.dataValues;
+	            book.genres.map(function (genreOfOneBook) {
+	                let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
+	                genreOfOneBook = genre;
+	                return genreOfOneBook
+	            });
+	            return book;
+	        });
+					return booksBooks
+	    });
+	}
+	Books.count().then(function (count) {
+			res.json({"pos": +req.query.start, "data": data, "total_count": +count})
+	});
+
+    // const books = await Books.findAll({include: [Genres, Cover]}).then(booksBooks => {
+    //     booksBooks.map(function (book) {
+    //         book = book.dataValues;
+    //         book.genres.map(function (genreOfOneBook) {
+    //             let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
+    //             genreOfOneBook = genre;
+    //             return genreOfOneBook
+    //         });
+    //         return book;
+    //     });
+    //     res.json(booksBooks);
+    // });
 });
 
 app.put("/:id", async (req, res) => {
@@ -50,19 +75,19 @@ app.put("/:id", async (req, res) => {
             // return res.json(updatedBook[0])
         });
     let sendData = [];
-    
+
     Books.findOne({where: {id: req.body.id}, include: [Genres] }).then((book) => {
-        
+
         book.genres.map(function (genre) {
             genre.removeBook(req.body.id)
         })
         let genresOfUpdatedBook = [];
         for (const key in req.body) {
-            if (key.substring(0, 5) === "genre" && key.substring(5, 6) !== "s") {              
+            if (key.substring(0, 5) === "genre" && key.substring(5, 6) !== "s") {
                 genresOfUpdatedBook.push(req.body[key]);
             }
         }
-        
+
         let sendData = genresOfUpdatedBook.map((genreOfUpdatedBook) => {
             return Genres.findOne({where: {id: genreOfUpdatedBook}})
                 .then((genre) => {
@@ -95,7 +120,7 @@ app.put("/order/:id", async (req, res) => {
 app.post("/uploadFiles", upload.fields([{name: "text", maxCount: 3}, {name: "audio", maxCount: 3}]), async (req, res) => {
     let text = await req.files.text;
     let audio = await req.files.audio;
-    
+
     if (req.body.id) {
         Books.findOne({where: {id: req.body.id} }).then((book) => {
             if (text) {
@@ -105,8 +130,8 @@ app.post("/uploadFiles", upload.fields([{name: "text", maxCount: 3}, {name: "aud
                     moveFile(oldPath, newPath)
                     book.createBookFile(({fileType: textfile.mimetype, path: newPath, size: textfile.size, bookId: req.body.id}));
                     return textfile
-                }); 
-            }           
+                });
+            }
             if (audio) {
                 audio.map(function (audiofile) {
                     let oldPath = audiofile.destination + "/" + audiofile.filename;
@@ -123,11 +148,11 @@ app.post("/uploadFiles", upload.fields([{name: "text", maxCount: 3}, {name: "aud
 app.post("/add", upload.single("upload"), async (req, res) => {
     try {
         let newBook = req.body;
-        
+
         Books.create(newBook).then((book) => {
             let genresOfNewBook = [];
             for (const key in newBook) {
-                if (key.substring(0, 5) === "genre") {              
+                if (key.substring(0, 5) === "genre") {
                     genresOfNewBook.push(newBook[key]);
                 }
             }
@@ -145,9 +170,9 @@ app.post("/add", upload.single("upload"), async (req, res) => {
             res.send(book);
         });
     } catch (error) {
-        
+
     }
-	
+
 });
 
 
@@ -156,14 +181,14 @@ app.post("/add", upload.single("upload"), async (req, res) => {
 app.get("/book", async (req, res) => {
     const book = await Books.findOne({include: [Genres, Cover]}).then(bookFullInfo => {
         console.log(bookFullInfo);
-        
+
         // booksBooks.map(function (book) {
-        //     book = book.dataValues;            
+        //     book = book.dataValues;
         //     book.genres.map(function (genreOfOneBook) {
         //         let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
         //         genreOfOneBook = genre;
         //         return genreOfOneBook
-        //     });            
+        //     });
         //     return book;
         // });
         // res.json(booksBooks);

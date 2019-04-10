@@ -16,6 +16,7 @@ export default class MyApp extends JetApp{
 		this.use(plugins.User, {
 			model: session,
 		});
+
 		function getUser() {
 			return webix.ajax().sync().post("http://localhost:3016/users/login/status").response;
 		}
@@ -25,14 +26,14 @@ export default class MyApp extends JetApp{
 				console.log(userInfo.role);
 				console.log(typeof(userInfo.role));
 				switch(userInfo.role) {
-					case "3": 
+					case "3":
 						if (url.indexOf("/reader") !== -1 || url.indexOf("/librarian") !== -1 || url.indexOf("/top") !== -1) {
 							nav.redirect = "/admin.adminMenu/admin.users"
 						}
 						break;
 					case "2":
 						if (url.indexOf("/admin") !== -1 || url.indexOf("/reader") !== -1 || url.indexOf("/top") !== -1) {
-							nav.redirect = "/librarian.librarianMenu/librarian.addBook"
+							nav.redirect = "/librarian.librarianMenu/librarian.library"
 						}
 						break;
 					case "1":

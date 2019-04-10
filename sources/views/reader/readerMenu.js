@@ -69,8 +69,8 @@ export default class TopView extends JetView {
 		});
 	}
 	init() {
-		let username = webix.storage.local.get("UserInfo").role;
-		this.$getHelloTemplate().define({template: "Hi, " + username + ". You are librarian"});
+		let username = webix.storage.local.get("UserInfo").username;
+		this.$getHelloTemplate().define({template: "Hi, " + username + ". You are reader"});
 		this.$getHelloTemplate().refresh();
 		this.use(plugins.Menu, this.$$("top:readermenu"));
 	}

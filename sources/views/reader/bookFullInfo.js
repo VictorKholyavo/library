@@ -59,13 +59,13 @@ export default class WindowInfoView extends JetView {
 			return " " + genre.genre;
 		});
         console.log(genres);
-        
+
 		// let rating = this.$$("rating");
 		// let refreshDatatable = this.app;
 		let image = "<img class='photo' src="+values.cover.path+">";
 		this.$$("cover").define({template: "<div class='columnSettings'>"+ image +"</div>"});
 		this.$$("info").define({template: "<div class='columnSettings'><div class='rowSettings'><span class='infoBodyHeader'>Title: </span>"+ values.title +
-        "</div><div class='rowSettings'><span class='infoBodyHeader'>Author: </span>"+ values.author +
+        "</div><div class='rowSettings'><span class='infoBodyHeader'>Author: </span>"+ values.authorName + " " + values.authorSurname + " " + values.authorPatronymic +
         "</div><div class='rowSettings'><span class='infoBodyHeader'>Pages: </span>"+ values.pages +
         "</div><div class='rowSettings'><span class='infoBodyHeader'>Year: </span>"+ values.year +
         "</div><div class='rowSettings'><span class='infoBodyHeader'>Genres: </span>"+ genres +

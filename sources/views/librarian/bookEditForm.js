@@ -11,48 +11,55 @@ export default class FormforBookView extends JetView {
 					view: "text",
 					name: "title",
 					label: "Title",
-					labelWidth: 120
+					labelWidth: 140
 				},
 				{
 					view: "text",
 					name: "pages",
 					label: "Pages",
-					labelWidth: 120
+					labelWidth: 140
 				},
 				{
 					view: "text",
 					name: "year",
 					label: "Year",
-					labelWidth: 120
+					labelWidth: 140
 				},
 				{
 					view: "text",
-					name: "author",
-					label: "Author",
-					labelWidth: 120
+					name: "authorName",
+					label: "Author Name",
+					labelWidth: 140
 				},
-				// {
-				// 	view: "text",
-				// 	name: "genres",
-				// 	label: "genres"
-				// },
+				{
+					view: "text",
+					name: "authorSurname",
+					label: "Author Surname",
+					labelWidth: 140
+				},
+				{
+					view: "text",
+					name: "authorPatronymic",
+					label: "Author Patronymic",
+					labelWidth: 140
+				},
 				{
 					view: "text",
 					name: "publisher",
 					label: "Publisher",
-					labelWidth: 120
+					labelWidth: 140
 				},
 				{
 					view: "text",
 					name: "country",
 					label: "Country",
-					labelWidth: 120
+					labelWidth: 140
 				},
 				{
 					view: "text",
 					name: "availableCount",
 					label: "Available Count",
-					labelWidth: 120
+					labelWidth: 140
 				},
 				// {
 				// 	view: "datepicker",
@@ -83,8 +90,8 @@ export default class FormforBookView extends JetView {
 							view: "list",
 							id: "listOfTextFiles",
 							type: "uploader",
-							autoheight:true, 
-							borderless:true	
+							autoheight:true,
+							borderless:true
 						},
 					]
 				},
@@ -103,8 +110,8 @@ export default class FormforBookView extends JetView {
 							view: "list",
 							id: "listOfAudioFiles",
 							type: "uploader",
-							autoheight:true, 
-							borderless:true	
+							autoheight:true,
+							borderless:true
 						},
 					]
 				}
@@ -120,7 +127,7 @@ export default class FormforBookView extends JetView {
 						this.$getForm().addView({
 							view: "richselect",
 							label: "Genre "+counter,
-							labelWidth: 120,
+							labelWidth: 140,
 							name: "genre"+counter,
 							options:{
 								body: {
@@ -183,7 +190,7 @@ export default class FormforBookView extends JetView {
 					view: "richselect",
 					name: "genre"+(index+1),
 					label: "Genre "+(index+1),
-					labelWidth: 120,
+					labelWidth: 140,
 					options:{
 						body: {
 							template: "#genre#",

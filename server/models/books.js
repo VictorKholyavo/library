@@ -16,7 +16,13 @@ module.exports = (sequelize, type) => {
 		year: {
 			type: type.INTEGER
 		},
-		author: {
+		authorName: {
+			type: type.STRING
+		},
+		authorSurname: {
+			type: type.STRING
+		},
+		authorPatronymic: {
 			type: type.STRING
 		},
 		publisher: {

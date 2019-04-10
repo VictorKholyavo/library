@@ -19,6 +19,7 @@ app.get("/", passport.authenticate('jwt', {session: false}), async (req, res) =>
 
 app.put("/:id", async (req, res) => {
     try {
+			console.log(req.body);
         let updateStatus = {
             statusId: +req.body.status
         }
@@ -27,7 +28,8 @@ app.put("/:id", async (req, res) => {
         }
         if (req.body.status && req.body.id) {
             UserOrder.update(updateStatus, options).then(() => {
-                UserOrder.findOne({where: {id: req.body.id}, include: [{model: User, include: [UserDetailes]}, {model: Books, include: [Cover]}, {model: Status}]}).then((updatedOrder) => {
+                UserOrder.findOne({where: {id: +req.body.id}, include: [{model: User, include: [UserDetailes]}, {model: Books, include: [Cover]}, {model: Status}]}).then((updatedOrder) => {
+									console.log(updatedOrder);
                     updatedOrder = updatedOrder.dataValues;
                     updatedOrder.user = updatedOrder.user.dataValues.userdetaile.dataValues;
                     updatedOrder.book = updatedOrder.book.dataValues;
@@ -48,6 +50,11 @@ app.put("/:id", async (req, res) => {
                             })
                         });
                     }
+                    else if (updatedOrder.status.id === "5" && req.body.return) {
+                        Books.findOne({where: {id: req.body.bookId}}).then((book) => {
+                            return book.increment("availableCount", {by: 1});
+                        });
+                    }
                     else {
                         return res.json(updatedOrder);
                     }
@@ -56,9 +63,13 @@ app.put("/:id", async (req, res) => {
         }
     } catch (error) {
         res.send(error)
-    }    
-    
-    
+    }
+});
+
+app.delete("/:id", async (req, res) => {
+    UserOrder.findOne({where: {id: req.body.id}}).then(orderForDelete => {
+        return res.json(orderForDelete.destroy());
+    });
 });
 
 // USER WORK WITH ORDERS //
@@ -84,10 +95,11 @@ app.post("/add", passport.authenticate('jwt', {session: false}), async (req, res
     } catch (error) {
         res.send(error)
     }
-	
+
 });
 
 app.put("/user/:id", passport.authenticate('jwt', {session: false}), async (req, res) => {
+		console.log(req.body.status);
     let updateStatusToReturn = {
         statusId: +req.body.status
     }

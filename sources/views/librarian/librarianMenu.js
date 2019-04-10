@@ -19,7 +19,8 @@ export default class TopView extends JetView {
 			data: [
 				{ value: "Library", id: "librarian.library", icon: "wxi-columns" },
 				{ value: "Add Book", id: "librarian.addBook", icon: "wxi-pencil" },
-				{ value: "Orders", id: "librarian.orders", icon: "wxi-columns" }
+				{ value: "Orders", id: "librarian.orders", icon: "wxi-columns" },
+				{ value: "Readers", id: "librarian.readersDatatable", icon: "wxi-columns" }
 			]
 		};
 
@@ -77,7 +78,7 @@ export default class TopView extends JetView {
 		});
 	}
 	init() {
-		let username = webix.storage.local.get("UserInfo").email;
+		let username = webix.storage.local.get("UserInfo").username;
 		this.$getHelloTemplate().define({template: "Hi, " + username + ". You are librarian"});
 		this.$getHelloTemplate().refresh();
 		this.use(plugins.Menu, this.$$("top:librarianmenu"));

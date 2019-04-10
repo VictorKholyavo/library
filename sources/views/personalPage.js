@@ -3,6 +3,26 @@ let counter = null;
 
 export default class PersonalPageView extends JetView{
 	config(){
+		const header = {
+			view:"toolbar",
+			margin:-4,
+			cols:[
+				{
+					view: "template",
+					height: 40,
+					template: "Personal information",
+					css: "headerInfo"
+				},
+				{
+					view:"icon",
+					icon:"wxi-close",
+					click: () => {
+						this.show("/top")
+					}
+				}
+			]
+		};
+
 		const form = {
 			view: "form",
 			localId: "form",
@@ -82,7 +102,7 @@ export default class PersonalPageView extends JetView{
 			]
 		}
 		return {
-			cols: [{}, {rows: [{}, form, button, {}]}, {}]
+			cols: [{}, {rows: [{}, header, form, button, {}]}, {}]
 		};
 	}
 	$getForm() {
@@ -107,7 +127,7 @@ export default class PersonalPageView extends JetView{
 					labelWidth: 100,
 					name: "phone"+(index+1)
 				});
-			});			
+			});
 			form.setValues(response);
 			counter = response.phones.length;
 		});

@@ -57,7 +57,6 @@ export default class FormView extends JetView {
 						// 	labelPosition: "left",
 						// 	batch: "b2",
 						// 	labelWidth: 120
-
 						// },
 						{
 							view: "text",

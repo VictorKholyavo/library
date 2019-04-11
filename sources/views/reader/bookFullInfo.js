@@ -3,8 +3,16 @@ import {JetView} from "webix-jet";
 export default class WindowInfoView extends JetView {
 	config() {
 		webix.protoUI({
-		    name:"clearComments"
-		}, webix.EditAbility, webix.ui.comments);
+		   name: "newComments", // the name of a new component
+			 select: true,
+			 defaults:{
+		      on: {
+						onItemClick: function(obj) {
+							console.log(obj);
+						}
+					}
+		   },
+		}, webix.MouseEvents, webix.ui.comments); // extended functionality
 		return {
 			view: "window",
 			localId: "window",
@@ -79,8 +87,14 @@ export default class WindowInfoView extends JetView {
 						]
 					},
 					{
-						view: "comments",
+						view: "newComments",
 						localId: "commentsView",
+						select: true,
+						on: {
+							onItemClick: () => {
+								console.log("asdasdasdsa");
+							}
+						},
 						users: "http://localhost:3016/users/comments",
 						scheme:{
 			        $init:(obj) => {
@@ -107,15 +121,18 @@ export default class WindowInfoView extends JetView {
 	}
 	showWindow(values) {
 		this.$windowInfo().show();
+		let user_id = webix.storage.local.get("UserInfo").user_id;
+		console.log(user_id);
 		let genres = values.genres.map(function (genre) {
 			return " " + genre.genre;
 		});
 		let comments = this.$$("commentsView");
-
 		webix.storage.local.put("bookId", values.id);
 		webix.ajax().get("http://localhost:3016/comments/" + values.id).then(function(data) {
 			data = data.json();
 			comments.parse(data);
+			comments.setCurrentUser(user_id);
+			webix.extend(comments, webix.MouseEvents, webix.EventSystem);
 		})
 
 		let image = "<img class='photo' src="+values.cover.path+">";

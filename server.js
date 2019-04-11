@@ -11,7 +11,6 @@ const BooksController = require("./server/controllers/books");
 const OrderController = require("./server/controllers/userOrder");
 // const PhonesController = require("./server/controllers/phones");
 // const { Users, Phones } = require('./sequelize');
-const CoverController = require("./server/controllers/cover");
 const StatusController = require("./server/controllers/status");
 const StartDataController = require("./server/controllers/startData");
 const CommentsController = require("./server/controllers/comment");
@@ -26,7 +25,6 @@ app.use("/roles", RolesController);
 
 app.use("/genres", GenresController);
 app.use("/books", BooksController);
-app.use("/cover", CoverController);
 
 app.use("/order", OrderController);
 app.use("/status", StatusController);

@@ -61,13 +61,6 @@ export default class FormforBookView extends JetView {
 					label: "Available Count",
 					labelWidth: 140
 				},
-				// {
-				// 	view: "datepicker",
-				// 	label: "Date of Birth",
-				// 	labelPosition: "left",
-				// 	format: "%d.%m.%Y",
-				// 	name: "dateofbirth",
-				// },
 			],
 			rules: {
 				$all: webix.rules.isNotEmpty

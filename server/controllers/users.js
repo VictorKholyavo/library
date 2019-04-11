@@ -66,7 +66,7 @@ app.post("/login/status", passport.authenticate('jwt', {session: false}), async 
     if (req.user) {
         const userDetailes = await User.findOne({where: {id: req.user.id}, include: [UserDetailes]});
 		let token = jwt.sign({id: req.user.id}, "secret for library");
-		return res.json({token: token, role: req.user.roleUuid, username: userDetailes.userdetaile.firstname});
+		return res.json({token: token, role: req.user.roleUuid, username: userDetailes.userdetaile.firstname, user_id: req.user.id});
 	}
 	return res.json(null);
 });
@@ -93,13 +93,6 @@ app.get("/", async (req, res) => {
 				user.phonesCount = phonesCount;
         return user;
     }));
-    // const usersToAdmin = users.map(function(user) {
-    //     let role = user.roles.dataValues;
-    //     user = user.usersdetaile.dataValues;
-    //     user.role = role;
-    //     return user;
-    // });
-    // res.json(usersToAdmin);
 });
 app.put("/:id", async (req, res) => {
     let updateUserDetailes = {

@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const passport = require('passport');
 const UsersController = require("./server/controllers/users");
 const UsersDetailesController = require("./server/controllers/usersDetailes");
 const RolesController = require("./server/controllers/roles");
@@ -23,16 +24,14 @@ app.use("/users", UsersController);
 app.use("/usersdetailes", UsersDetailesController);
 app.use("/roles", RolesController);
 
-app.use("/genres", GenresController);
-app.use("/books", BooksController);
+app.use("/genres", passport.authenticate('jwt', {session: false}),  GenresController);
+app.use("/books", passport.authenticate('jwt', {session: false}), BooksController);
 
-app.use("/order", OrderController);
-app.use("/status", StatusController);
+app.use("/order", passport.authenticate('jwt', {session: false}), OrderController);
+app.use("/status", passport.authenticate('jwt', {session: false}), StatusController);
 
 app.use("/startData", StartDataController);
-app.use("/comments", CommentsController);
-
-// app.use("/phones", PhonesController);
+app.use("/comments", passport.authenticate('jwt', {session: false}), CommentsController);
 
 app.listen(3016, function () {
 	console.log("API app started");

@@ -5,7 +5,7 @@ const passport = require('passport');
 
 // LIBRARIAN WORK WITH ORDERS //
 
-app.get("/", passport.authenticate('jwt', {session: false}), async (req, res) => {
+app.get("/", async (req, res) => {
     const usersOrders = await UserOrder.findAll({include: [{model: User, include: [UserDetailes]}, {model: Books, include: [Cover]}, {model: Status}]});
     return res.send(usersOrders.map(function (order) {
         order = order.dataValues;
@@ -74,7 +74,7 @@ app.delete("/:id", async (req, res) => {
 
 // USER WORK WITH ORDERS //
 
-app.get("/user", passport.authenticate('jwt', {session: false}), async (req, res) => {
+app.get("/user", async (req, res) => {
     console.log(req.user.id);
     const userOrders = await UserOrder.findAll({where: {userId: req.user.id}, include: [{model: Books, include: [Cover]}, {model: Status}]});
     // console.log(userOrders);
@@ -87,7 +87,7 @@ app.get("/user", passport.authenticate('jwt', {session: false}), async (req, res
     }));
 });
 
-app.post("/add", passport.authenticate('jwt', {session: false}), async (req, res) => {
+app.post("/add", async (req, res) => {
     try {
         UserOrder.create({bookId: req.body.bookId, userId: req.user.id, statusId: 1}).then((order) => {
             return res.send(order)
@@ -98,7 +98,7 @@ app.post("/add", passport.authenticate('jwt', {session: false}), async (req, res
 
 });
 
-app.put("/user/:id", passport.authenticate('jwt', {session: false}), async (req, res) => {
+app.put("/user/:id", async (req, res) => {
 		console.log(req.body.status);
     let updateStatusToReturn = {
         statusId: +req.body.status

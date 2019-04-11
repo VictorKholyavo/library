@@ -20,7 +20,7 @@ app.get("/:id", async (req, res) => {
 
 
 
-app.post("/addcomment", passport.authenticate('jwt', {session: false}), async (req, res) => {
+app.post("/addcomment", async (req, res) => {
     try {
 			Comment.create({bookId: req.body.bookId, user_id: req.user.id, text: req.body.text, date: req.body.date}).then((comment) => {
 				return res.send(comment)

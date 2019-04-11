@@ -104,10 +104,7 @@ app.put("/:id", async (req, res) => {
     let options = {
         where: {id: req.body.id}
     }
-    Books.update(updateBook, options)
-        .then(function (updatedBook) {
-            // return res.json(updatedBook[0])
-        });
+    Books.update(updateBook, options);
     let sendData = [];
 
     Books.findOne({where: {id: req.body.id}, include: [Genres] }).then((book) => {
@@ -128,10 +125,6 @@ app.put("/:id", async (req, res) => {
                     return genre.addBook(req.body.id);
                 });
         });
-        // let sendData = genresOfUpdatedBook.map(async (genreOfUpdatedBook) => {
-        //     const genre = await Genres.findOne({where: {id: genreOfUpdatedBook}});
-        //     await  genre.addBook(req.body.id);
-        // });
         Promise.all(sendData).then((completed) => {
             Books.findOne({where: {id: req.body.id}, include: [Genres] }).then((book) => {
                 return res.send(book)
@@ -182,7 +175,6 @@ app.post("/uploadFiles", upload.fields([{name: "text", maxCount: 3}, {name: "aud
 app.post("/add", upload.single("upload"), async (req, res) => {
     try {
         let newBook = req.body;
-
         Books.create(newBook).then((book) => {
             let genresOfNewBook = [];
             for (const key in newBook) {
@@ -209,7 +201,6 @@ app.post("/add", upload.single("upload"), async (req, res) => {
 
 });
 
-
 //GET BOOK FULL INFORMATION//
 
 app.get("/like/:id", async (req, res) => {
@@ -222,7 +213,7 @@ app.get("/like/:id", async (req, res) => {
 	})
 })
 
-app.post("/like", passport.authenticate('jwt', {session: false}), async (req, res) => {
+app.post("/like", async (req, res) => {
 	try {
 		Books.findOne({where: {id: req.body.bookId}}).then((book) => {
 			book.getUsers().then((users) => {
@@ -243,9 +234,7 @@ app.post("/like", passport.authenticate('jwt', {session: false}), async (req, re
 			})
 		})
 	} catch (e) {
-		res.send(e)
-	} finally {
-
+			res.send(e)
 	}
 });
 

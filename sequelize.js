@@ -9,6 +9,8 @@ const CoverModel = require("./server/models/cover");
 const BookFilesModel = require("./server/models/bookFiles");
 const UserOrderModel = require("./server/models/userOrder");
 const StatusModel = require("./server/models/status");
+const CommentModel = require("./server/models/comment");
+const LikeModel = require("./server/models/like");
 
 const sequelize = new Sequelize("library", "root", "", {
 	host: "localhost",
@@ -54,6 +56,16 @@ UserOrder.belongsTo(Books);
 UserOrder.belongsTo(Status);
 UserOrder.belongsTo(User);
 
+// LIKES //
+const Like = LikeModel(sequelize, Sequelize);
+User.belongsToMany(Books, {through: "BooksLikes"});
+Books.belongsToMany(User, {through: "BooksLikes"});
+
+// COMMENTS //
+const Comment = CommentModel(sequelize, Sequelize);
+User.hasMany(Comment, {foreignKey: 'user_id'});
+Books.hasMany(Comment);
+
 sequelize.sync()
 	.then(() => {
 		console.log("Database & tables created!")
@@ -69,5 +81,7 @@ module.exports = {
 	Cover,
 	BookFiles,
 	UserOrder,
-	Status
+	Status,
+	Comment,
+	Like
 };

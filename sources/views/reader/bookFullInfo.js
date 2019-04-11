@@ -2,11 +2,14 @@ import {JetView} from "webix-jet";
 
 export default class WindowInfoView extends JetView {
 	config() {
+		webix.protoUI({
+		    name:"clearComments"
+		}, webix.EditAbility, webix.ui.comments);
 		return {
 			view: "window",
 			localId: "window",
-			width: 600,
-			height: 400,
+			width: 1200,
+			height: 600,
 			position: "center",
 			modal: true,
 			borderless: true,
@@ -23,46 +26,100 @@ export default class WindowInfoView extends JetView {
 				borderless: true,
 				cols: [
 					{
-						template: " ",
-						width: 200,
-						localId: "cover"
+						cols: [
+							{
+								rows: [
+									{
+										template: " ",
+										width: 200,
+										localId: "cover"
+									},
+									{
+										view: "button",
+										value: "Print Cover",
+										click: () => {
+											webix.print(this.$$("cover"));
+										}
+									}
+								]
+							},
+							{
+								rows: [
+									{
+										template: " ",
+										width: 300,
+										localId: "info"
+									},
+									{
+										view: "template",
+										localId: "likes",
+										template: "<div class='columnSettings'><div class='rowSettings'><span class='infoBodyHeader'>Likes: </span></div></div>",
+										height: 60
+									},
+									{
+										view: "button",
+										value: "Like",
+										click: () => {
+											let bookId = webix.storage.local.get("bookId");
+											let likes = this.$$("likes");
+											webix.ajax().post("http://localhost:3016/books/like", {bookId: bookId}).then((response) => {
+												response = response.json();
+												likes.define({template: "<div class='columnSettings'><div class='rowSettings'><span class='infoBodyHeader'>Likes: "+ response +"</span></div></div>"});
+												likes.refresh();
+												console.log(response);
+												info.refresh();
+											}, function (err) {
+												console.log(err);
+												webix.message({type: "error", text: err.responseText});
+											})
+										}
+									}
+								]
+							},
+						]
 					},
 					{
-						template: " ",
-						width: 300,
-						localId: "info"
-					},
-					// {
-					// 	width: 200,
-					// 	cols: [
-					// 		{
-					// 			rows: [
-					// 				{
-					// 					cols: [
-					// 						{ view: "template", localId: "rating",height: 100,  template: " "},
-					// 						{ view:"icon", align: "left", localId: "addRating",width: 80, icon:"fas fa-star"},
-					// 					]
-					// 				},
-					// 				{}
-					// 			]
-					// 		}
-					// 	]
-					// }
+						view: "comments",
+						localId: "commentsView",
+						users: "http://localhost:3016/users/comments",
+						scheme:{
+			        $init:(obj) => {
+		            if(obj.date)
+		                obj.date = webix.i18n.parseFormatDate(obj.date);
+			        }
+				    },
+						save: {
+							url: (id, e, body) => {;
+								let bookId = webix.storage.local.get("bookId");
+								return webix.ajax().post("http://localhost:3016/comments/addcomment", {text: body.text, date: body.date, bookId: bookId})
+							},
+							updateFromResponse: true
+						}
+					}
 				]
+			},
+			on: {
+				onHide: () => {
+					this.$$("commentsView").clearAll();
+				}
 			}
 		};
 	}
 	showWindow(values) {
 		this.$windowInfo().show();
-		console.log(values);
 		let genres = values.genres.map(function (genre) {
 			return " " + genre.genre;
 		});
-        console.log(genres);
+		let comments = this.$$("commentsView");
 
-		// let rating = this.$$("rating");
-		// let refreshDatatable = this.app;
+		webix.storage.local.put("bookId", values.id);
+		webix.ajax().get("http://localhost:3016/comments/" + values.id).then(function(data) {
+			data = data.json();
+			comments.parse(data);
+		})
+
 		let image = "<img class='photo' src="+values.cover.path+">";
+		this.$$("likes").define({template: "<div class='columnSettings'><div class='rowSettings'><span class='infoBodyHeader'>Likes: "+ values.likes +"</span></div></div>"})
 		this.$$("cover").define({template: "<div class='columnSettings'>"+ image +"</div>"});
 		this.$$("info").define({template: "<div class='columnSettings'><div class='rowSettings'><span class='infoBodyHeader'>Title: </span>"+ values.title +
         "</div><div class='rowSettings'><span class='infoBodyHeader'>Author: </span>"+ values.authorName + " " + values.authorSurname + " " + values.authorPatronymic +
@@ -72,27 +129,10 @@ export default class WindowInfoView extends JetView {
         "</div><div class='rowSettings'><span class='infoBodyHeader'>Publisher: </span>"+ values.publisher +
         "</div><div class='rowSettings'><span class='infoBodyHeader'>Country: </span>"+ values.country +"</div></div>"});
 		this.$$("info").refresh();
-
-
-
-		// this.$$("rating").define({template: "<div class='rowSettings'><span class='infoProductHeader'>Rating: </span>"+ values.rating +"</div>"});
+		this.$$("likes").refresh();
 		this.$$("titleOfBook").define({template: "<div class='headerInfo'>"+ values.title +"</div>"});
-		// this.$$("rating").refresh();
 		this.$$("titleOfBook").refresh();
 		this.$$("cover").refresh();
-		// this.$$("addRating").attachEvent("onItemClick", function() {
-		// 	webix.ajax().post("http://localhost:3014/products/product", {productId: values.id}).then(function (response) {
-		// 		response = response.json();
-		// 		webix.ajax().put("http://localhost:3014/products/:id", {productId: response.id, rating: response.rating}).then(function (newData) {
-		// 			newData = newData.json();
-		// 			return newData;
-		// 		}).then(function (newData) {
-		// 			rating.define({template: "<div class='rowSettings'><span class='infoProductHeader'>Rating: </span>"+ newData.rating +"</div>"});
-		// 			rating.refresh();
-		// 			refreshDatatable.callEvent("refreshDatatable", [newData]);
-		// 		});
-		// 	});
-		// });
 	}
 	init() {
 	}

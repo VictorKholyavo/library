@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
 const multer  = require("multer");
+const passport = require('passport');
 const moveFile = require('move-file');
-const { Books, Genres, Cover, BookFiles } = require("../../sequelize");
+const { Books, Genres, Cover, BookFiles, User, Like } = require("../../sequelize");
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
@@ -25,37 +26,70 @@ app.get("/", async (req, res) => {
 	let authorSurnameFilter = req.query.filter && req.query.filter.author ? {[Op.like]: '%'+req.query.filter.author+'%'} : {[Op.like]: '%%'};
 	let authorPatronymicFilter = req.query.filter && req.query.filter.author ? {[Op.like]: '%'+req.query.filter.author+'%'} : {[Op.like]: '%%'};
 	let data = [];
+	let order = [];
+	let where = {};
 	if (req.query.start && req.query.count) {
+		if (req.headers.filteringcolumn !== "") {
+			switch(req.headers.filteringcolumn) {
+				case "year":
+					order = ["year", "ASC"];
+					where = {};
+					break;
+				case "pages":
+					order = ["pages", "DESC"];
+					where = {};
+					break;
+				case "title":
+					order = [Sequelize.fn('length', Sequelize.col('title')), 'DESC'];
+					where = {};
+					break;
+				case "country":
+					order = ["year", "ASC"];
+					where = {country: "Spain", year: {[Op.between]: [1980, 2000]}};
+					break;
+			}
+			data = await Books.findAll({where: where, limit: 10, order: [order], include: [Genres, Cover]});
+			return res.json(data)
+		}
+		else {
 			data = await Books.findAll({where: {title: titleFilter, [Op.or]: [{authorName: authorNameFilter}, {authorSurname: authorSurnameFilter}, {authorPatronymic: authorPatronymicFilter}]}, offset: +req.query.start, limit: +req.query.count, include: [Genres, Cover]}).then(booksBooks => {
 	        booksBooks.map(function (book) {
-	            book = book.dataValues;
-	            book.genres.map(function (genreOfOneBook) {
-	                let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
-	                genreOfOneBook = genre;
-	                return genreOfOneBook
-	            });
-	            return book;
+						let likes = null;
+						book.getUsers().then((users) => {
+							likes = users.length;
+							book.dataValues.likes = users.length;
+							return likes
+						});
+            // book = book.dataValues;
+            book.genres.map(function (genreOfOneBook) {
+                let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
+                genreOfOneBook = genre;
+                return genreOfOneBook
+            });
+						book.dataValues.likes = likes;
+            return book;
 	        });
 					return booksBooks
 	    });
+		}
 	}
 	Books.count().then(function (count) {
 			res.json({"pos": +req.query.start, "data": data, "total_count": +count})
 	});
-
-    // const books = await Books.findAll({include: [Genres, Cover]}).then(booksBooks => {
-    //     booksBooks.map(function (book) {
-    //         book = book.dataValues;
-    //         book.genres.map(function (genreOfOneBook) {
-    //             let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
-    //             genreOfOneBook = genre;
-    //             return genreOfOneBook
-    //         });
-    //         return book;
-    //     });
-    //     res.json(booksBooks);
-    // });
 });
+
+app.get("/popularauthors", async (req, res) => {
+	let authorsByBooksCount = await Books.findAll({group: ["authorName", "authorSurname", "authorPatronymic"], attributes: ["authorName", "authorSurname", "authorPatronymic", [Sequelize.fn('COUNT', 'authorSurname'), 'BooksCount']], order: [[Sequelize.literal('BooksCount'), 'DESC']]}).then(function (books) {
+		books.map(function (book, index) {
+			book = book.dataValues;
+			return book;
+		});
+		return books
+	});
+	Promise.all(authorsByBooksCount).then((completed) => {
+		return res.json(completed)
+	});
+})
 
 app.put("/:id", async (req, res) => {
     let updateBook = {
@@ -178,52 +212,42 @@ app.post("/add", upload.single("upload"), async (req, res) => {
 
 //GET BOOK FULL INFORMATION//
 
-app.get("/book", async (req, res) => {
-    const book = await Books.findOne({include: [Genres, Cover]}).then(bookFullInfo => {
-        console.log(bookFullInfo);
+app.get("/like/:id", async (req, res) => {
+	Books.findOne({where: {id: req.params.id}}).then((book) => {
+		book.getUsers().then((users) => {
+			console.log(users.length);
+			return res.json(users.length)
+		})
+		return
+	})
+})
 
-        // booksBooks.map(function (book) {
-        //     book = book.dataValues;
-        //     book.genres.map(function (genreOfOneBook) {
-        //         let genre = {id: genreOfOneBook.dataValues.id, genre: genreOfOneBook.dataValues.genre};
-        //         genreOfOneBook = genre;
-        //         return genreOfOneBook
-        //     });
-        //     return book;
-        // });
-        // res.json(booksBooks);
-    });
+app.post("/like", passport.authenticate('jwt', {session: false}), async (req, res) => {
+	try {
+		Books.findOne({where: {id: req.body.bookId}}).then((book) => {
+			book.getUsers().then((users) => {
+				users.map(function (user) {
+					if (user.dataValues.id === req.user.id) {
+						return res.status(405).send("You already liked this book")
+					}
+				})
+				return book
+			}).then((book) => {
+				book.addUser(req.user.id).then((like) => {
+					book.getUsers().then((likesCount) => {
+						console.log(likesCount.length);
+						return res.json(likesCount.length)
+					})
+					return
+				})
+			})
+		})
+	} catch (e) {
+		res.send(e)
+	} finally {
+
+	}
 });
 
-// app.put("/:id", (req, res) => {
-// 	let values = {
-// 		firstname: req.body.firstname,
-// 		surname: req.body.surname,
-// 		dateofbirth: req.body.dateofbirth,
-// 		salary: req.body.salary,
-// 	};
-// 	let options = {
-// 		where: { id: req.body.id }
-// 	};
-// 	Employees.update(values, options)
-// 		.then(function (rowsUpdate, [updatedEmployeer]) {
-// 			return res.json(updatedEmployeer);
-// 		});
-// });
-
-// app.delete("/:id", (req, res) => {
-// 	Employees.destroy({ where: { id: req.body.id } })
-// 		.then(function () {
-// 			return res.send(req.body.id);
-// 		});
-// });
-// app.get('/', (req, res) => {
-//     let sql = "SELECT * FROM employees";
-//     let query = db.query(sql, (err, results) => {
-//         if(err) throw err;
-//         console.log(results);
-//         res.json(results)
-//     })
-// });
 
 module.exports = app;

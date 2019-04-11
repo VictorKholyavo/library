@@ -204,27 +204,27 @@ const phones = [{"id":1,"phone":"305-637-6527","userId":1},
 
 app.get("/", async (req, res) => {
     try {
-				let createdStatuses = statuses.map((status) => {
-						return Status.create(status)
-				});
+        let createdStatuses = statuses.map((status) => {
+            return Status.create(status)
+        });
 
         let createdRoles = roles.map((role) => {
             return Roles.create(role)
         });
 
         Promise.all(createdRoles).then((completed) => {
-					let createdUsers = users.map((user, index) => {
-						return User.create(user).then((user) => {
-							return UserDetailes.create(usersDetailes[index]);
-						});
-					});
-					Promise.all(createdUsers).then(() => {
-						phones.map((phone) => {
-							// phone.phone = phone.phone.replace(/-/g, "");
-							return Phones.create({phone: phone.phone, userId: phone.userId});
-						})
-					});
-					return
+            let createdUsers = users.map((user, index) => {
+                return User.create(user).then((user) => {
+                    return UserDetailes.create(usersDetailes[index]);
+                });
+            });
+            Promise.all(createdUsers).then(() => {
+                phones.map((phone) => {
+                    // phone.phone = phone.phone.replace(/-/g, "");
+                    return Phones.create({phone: phone.phone, userId: phone.userId});
+                })
+            });
+            return
         });
 
 

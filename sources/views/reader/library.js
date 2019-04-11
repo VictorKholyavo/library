@@ -1,34 +1,28 @@
 import { JetView } from "webix-jet";
 import WindowInfoView from "./bookFullInfo";
+import WindowPopularAuthorsView from "./popularAuthors";
 
 export default class DataView extends JetView {
 	config() {
 		return {
 			rows: [
-				// {
-					// height: 35,
-					// view:"toolbar",
-					// elements:[
-					// 	{
-					// 		view:"text",
-					// 		localId:"list_input",
-					// 		css:"fltr",
-					// 	},
-					// 	{
-					// 		view: "button",
-					// 		localId: "findButton",
-					// 		value: "Find by title",
-					// 		width: 200,
-					// 		click: () => {
-					// 			let inputData = this.$$("list_input").data.value;
-					// 			this.$$("library").clearAll();
-					// 			this.$$("library").load(this.$$("library").config.url);
-					// 			// console.log(inputData);
-					//
-					// 		}
-					// 	}
-					// ]
-				// },
+				{
+					view: "tabbar",
+					localId: "mytabbar",
+					options: [
+						{id: 1, value: "All"},
+						{id: 2, value: "the Oldest"},
+						{id: 3, value: "Biggest (by pages)"},
+						{id: 4, value: "Biggest title"},
+						{id: 5, value: "Spain (1980 - 2000)"},
+						{id: 6, value: "Popular authors"}
+					],
+					on: {
+						onChange:() => {
+							this.$$("library").filterByAll();
+						}
+					}
+				},
 				{
 					view: "datatable",
 					localId: "library",
@@ -97,7 +91,6 @@ export default class DataView extends JetView {
 							}
 						},
 					},
-					// datafetch: 10,
 					url: "http://localhost:3016/books",
 					save: {
 						url: "rest->http://localhost:3016/books/order",
@@ -114,18 +107,61 @@ export default class DataView extends JetView {
 		};
 	}
 	init() {
-		// let input = this.$$("list_input")
-		// webix.attachEvent("onBeforeAjax",
-		// 	function(mode, url, data, request, headers) {
-		// 		let inputData = input.data.value;
-		//
-		// 		console.log(inputData);
-		// 		// if (webix.storage.local.get("UserInfo")) {
-		// 		// 	let token = webix.storage.local.get("UserInfo").token;
-		// 		headers["findByTitle"] = inputData;
-		// 		// }
-		// 	}
-		// );
 		this.windowInfo = this.ui(WindowInfoView);
+		this.windowPopularAuthors = this.ui(WindowPopularAuthorsView);
+		let windowAuthors = this.windowPopularAuthors
+		let filteringcolumn = "";
+		let library = this.$$("library");
+		this.$$("library").registerFilter(
+			this.$$("mytabbar"),
+			{
+				columnId: "State",
+				compare: function(value, filter, item) {
+					switch(filter) {
+						case "1":
+							library.clearAll();
+							filteringcolumn = "";
+							library.load(library.config.url);
+							break;
+						case "2":
+							library.clearAll();
+							filteringcolumn = "year";
+							library.load(library.config.url);
+							break;
+						case "3":
+							library.clearAll();
+							filteringcolumn = "pages";
+							library.load(library.config.url);
+							break;
+						case "4":
+							library.clearAll();
+							filteringcolumn = "title";
+							library.load(library.config.url);
+							break;
+						case "5":
+							library.clearAll();
+							filteringcolumn = "country";
+							library.load(library.config.url);
+							break;
+						case "6":
+							windowAuthors.showWindow();
+							break;
+					}
+				}
+			},
+			{
+				getValue:function(node){
+					return node.getValue();
+				},
+				setValue:function(node, value){
+					node.setValue(value);
+				}
+			}
+		);
+		webix.attachEvent("onBeforeAjax",
+			function(mode, url, data, request, headers) {
+				headers["filteringcolumn"] = filteringcolumn;
+			}
+		);
 	}
 }

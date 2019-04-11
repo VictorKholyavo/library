@@ -145,7 +145,6 @@ app.put("/:id", async (req, res) => {
 app.get("/user/:id", passport.authenticate('jwt', {session: false}), async (req, res, next) => {
     const userInfo = await User.findOne({where: {id: req.user.id}, include: [UserDetailes, Phones]});
     let counter = 1;
-    console.log(userInfo);
 
     userInfo.userdetaile.dataValues.phones = [];
     let userPhones = userInfo.phones.map(function (phone) {
@@ -212,6 +211,15 @@ app.post("/registration", async (req, res) => {
     }
 });
 
+app.get("/comments", async (req, res) => {
+    const usersToAdmin = await User.findAll({include: [UserDetailes]});
+    return res.json(usersToAdmin.map((user) => {
+        let fullname = user.userdetaile.dataValues.firstname;
+        user = user.userdetaile.dataValues;
+				user.value = fullname;
+        return user;
+    }));
+});
 // LIBRARIAN //
 
 app.get("/readers", async (req, res) => {

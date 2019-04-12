@@ -15,7 +15,8 @@ export default class DataView extends JetView {
 						{id: 3, value: "Biggest (by pages)"},
 						{id: 4, value: "Biggest title"},
 						{id: 5, value: "Spain (1980 - 2000)"},
-						{id: 6, value: "Popular authors"}
+						{id: 6, value: "Popular authors"},
+						{id: 7, value: "Audio and paper only"},
 					],
 					on: {
 						onChange:() => {
@@ -145,6 +146,11 @@ export default class DataView extends JetView {
 							break;
 						case "6":
 							windowAuthors.showWindow();
+							break;
+						case "7":
+							library.clearAll();
+							filteringcolumn = "files";
+							library.load(library.config.url);
 							break;
 					}
 				}

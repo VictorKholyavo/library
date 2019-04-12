@@ -7,6 +7,7 @@ const BooksModel = require("./server/models/books");
 const PhonesModel = require("./server/models/phones");
 const CoverModel = require("./server/models/cover");
 const BookFilesModel = require("./server/models/bookFiles");
+const BookAudioFilesModel = require("./server/models/bookAudioFiles");
 const UserOrderModel = require("./server/models/userOrder");
 const StatusModel = require("./server/models/status");
 const CommentModel = require("./server/models/comment");
@@ -41,12 +42,15 @@ const Books = BooksModel(sequelize, Sequelize);
 const Genres = GenresModel(sequelize, Sequelize);
 const Cover = CoverModel(sequelize, Sequelize);
 const BookFiles = BookFilesModel(sequelize, Sequelize);
+const BookAudioFiles = BookAudioFilesModel(sequelize, Sequelize);
 Genres.belongsToMany(Books, {through: "GenresBooks"});
 Books.belongsToMany(Genres, {through: "GenresBooks"});
 Books.hasOne(Cover);
 Cover.belongsTo(Books);
 Books.hasMany(BookFiles);
+Books.hasMany(BookAudioFiles);
 BookFiles.belongsTo(Books);
+BookAudioFiles.belongsTo(Books);
 
 // USER ORDERS //
 const UserOrder = UserOrderModel(sequelize, Sequelize);
@@ -84,6 +88,7 @@ module.exports = {
 	Phones,
 	Cover,
 	BookFiles,
+	BookAudioFiles,
 	UserOrder,
 	Status,
 	Comment,

@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { Status, Roles, User, UserDetailes, Genres, Books, Cover, Phones, BookFiles } = require("../../sequelize");
+const { Status, Roles, User, UserDetailes, Genres, Books, Cover, Phones, BookFiles, BookAudioFiles } = require("../../sequelize");
 
 const roles = [
     {uuid: 1, role: "reader"},
@@ -261,35 +261,13 @@ app.get("/", async (req, res) => {
 						for (let i = 50; i > 37; i--) {
 							Books.findOne({where: {id: i} }).then((book) => {
 								let path = "/public/uploads/audio/" + i + ".mp3";
-								book.createBookFile(({fileType: "audio/mp3", path: path, size: "311231", bookId: i}));
+								book.createBookAudio(({fileType: "audio/mp3", path: path, size: "311231", bookId: i}));
 							});
 						}
         });
 
 
-		return res.send("Cool")
-        // let newBook = req.body;
-
-        // Books.create(newBook).then((book) => {
-        //     let genresOfNewBook = [];
-        //     for (const key in newBook) {
-        //         if (key.substring(0, 5) === "genre") {
-        //             genresOfNewBook.push(newBook[key]);
-        //         }
-        //     }
-        //     genresOfNewBook.map(function (genreOfNewBook) {
-        //         Genres.findOne({where: {id: genreOfNewBook}})
-        //         .then((genre) => {
-        //             genre.addBook(book.dataValues.id);
-        //         })
-        //     });
-        //     return book
-        // })
-        // .then((book) => {
-        //     let path = req.file.destination + "/" + req.file.filename;
-        //     book.createCover({path: path, fileType: req.file.mimetype, bookId: book.dataValues.id});
-        //     res.send(book);
-        // });
+		return res.send("OK!")
     } catch (error) {
 
     }

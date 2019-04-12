@@ -3,7 +3,7 @@ const app = express();
 const multer  = require("multer");
 const passport = require('passport');
 const moveFile = require('move-file');
-const { Books, Genres, Cover, BookFiles, User, Like } = require("../../sequelize");
+const { Books, Genres, Cover, BookFiles, BookAudioFiles, User, Like } = require("../../sequelize");
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
@@ -47,9 +47,34 @@ app.get("/", async (req, res) => {
 					order = ["year", "ASC"];
 					where = {country: "Spain", year: {[Op.between]: [1980, 2000]}};
 					break;
+				case "files":
+					order = "check audio files and available count";
+					break;
 			}
-			data = await Books.findAll({where: where, limit: 10, order: [order], include: [Genres, Cover]});
-			return res.json(data)
+			if (order === "check audio files and available count") {
+				data = await Books.findAll({where: where, include: [Genres, Cover, BookFiles, BookAudioFiles]}).then((books) => {
+					let filteredBook = books.map(function (book) {
+						if (book.bookAudios.length > 0 && book.bookFiles.length === 0 && book.availableCount > 0) {
+							book = book.dataValues;
+							return book;
+						}
+						// if (book.dataValues.availableCount > 0 && book.bookAudios.length > 0 && book.bookFiles.length === 0) {
+						// 	console.log('!!!!!!!!!!!!!!!!!!!!!!!!!');
+						// }
+					})
+					return filteredBook
+				});
+				data = data.filter(function (x) {
+					return x !== undefined;
+				});
+				console.log(data);
+
+				return res.json(data);
+			}
+			else {
+				data = await Books.findAll({where: where, limit: 10, order: [order], include: [Genres, Cover]});
+				return res.json(data);
+			}
 		}
 		else {
 			data = await Books.findAll({where: {title: titleFilter, [Op.or]: [{authorName: authorNameFilter}, {authorSurname: authorSurnameFilter}, {authorPatronymic: authorPatronymicFilter}]}, offset: +req.query.start, limit: +req.query.count, include: [Genres, Cover]}).then(booksBooks => {
@@ -74,7 +99,7 @@ app.get("/", async (req, res) => {
 		}
 	}
 	Books.count().then(function (count) {
-			res.json({"pos": +req.query.start, "data": data, "total_count": +count})
+			res.json({"pos": +req.query.start, "data": data, "total_count": +count});
 	});
 });
 
@@ -164,7 +189,7 @@ app.post("/uploadFiles", upload.fields([{name: "text", maxCount: 3}, {name: "aud
                     let oldPath = audiofile.destination + "/" + audiofile.filename;
                     let newPath = audiofile.destination + "/audiofiles/" + audiofile.filename;
                     moveFile(oldPath, newPath)
-                    book.createBookFile(({fileType: audiofile.mimetype, path: newPath, size: audiofile.size, bookId: req.body.id}));
+                    book.createBookAudio(({fileType: audiofile.mimetype, path: newPath, size: audiofile.size, bookId: req.body.id}));
                     return audiofile
                 })
             }

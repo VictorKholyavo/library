@@ -70,7 +70,7 @@ export default class DataView extends JetView {
 						{ id: "availableCount", header: "Available count" },
 						{ id: "buy", header: "Buy", template: (obj) => {
 							if (obj.availableCount > 0) {
-								return "<i class='fas fa-shopping-cart'></i>"
+								return "<i class='fas fa-shopping-cart'></i>";
 							}
 							return "Not available";
 						} }
@@ -109,14 +109,14 @@ export default class DataView extends JetView {
 	init() {
 		this.windowInfo = this.ui(WindowInfoView);
 		this.windowPopularAuthors = this.ui(WindowPopularAuthorsView);
-		let windowAuthors = this.windowPopularAuthors
+		let windowAuthors = this.windowPopularAuthors;
 		let filteringcolumn = "";
 		let library = this.$$("library");
 		this.$$("library").registerFilter(
 			this.$$("mytabbar"),
 			{
 				columnId: "State",
-				compare: function(value, filter, item) {
+				compare: function(value, filter) {
 					switch(filter) {
 						case "1":
 							library.clearAll();

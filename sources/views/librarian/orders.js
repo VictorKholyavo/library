@@ -11,7 +11,6 @@ export default class OrdersView extends JetView {
 			columns: [
 				{
 					id: "cover", header: "Image", width: 100, template: (obj) => {
-						console.log(obj)
 						let photo = "<img src =" + obj.cover.path + " class='smallPhoto'>";
 						return "<div class='columnSettings'>" + photo + "</div>";
 					}
@@ -20,7 +19,7 @@ export default class OrdersView extends JetView {
 				{ id: "title", header: "Title", fillspace: true, template: (obj) => obj.book.title },
 				{ id: "year", header: "Year", template: (obj) => obj.book.year },
 				{ id: "author", header: "Author", template: (obj) => {
-					return obj.authorName + " " + obj.authorSurname
+					return obj.authorName + " " + obj.authorSurname;
 				}
 				},
 				{ id: "publisher", header: "Publisher", template: (obj) => obj.book.publisher },

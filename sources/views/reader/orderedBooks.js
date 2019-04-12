@@ -9,7 +9,7 @@ export default class OrderedBooksView extends JetView{
 			rowHeight: 80,
 			columns: [
 				{id: "cover", header: "Image", width: 100, template: (obj) => {
-					
+
 					let photo = "<img src ="+obj.cover.path+" class='smallPhoto'>";
 					return "<div class='columnSettings'>"+ photo +"</div>";
 				}},
@@ -25,7 +25,7 @@ export default class OrderedBooksView extends JetView{
 						return "<div class='webix_el_button'><button class='webixtype_base'>Return book</button></div>";
 					}
 					return " ";
-				}	 
+				}
 				},
 			],
 			onClick:{
@@ -43,7 +43,7 @@ export default class OrderedBooksView extends JetView{
 		};
 	}
 	$getDatatable() {
-		return this.$$("orderedBooks")
+		return this.$$("orderedBooks");
 	}
 	init(){
 	}

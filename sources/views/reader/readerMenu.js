@@ -6,8 +6,8 @@ export default class TopView extends JetView {
 			view: "menu",
 			localId: "top:readermenu",
 			css: "app_menu",
-			width: 180, 
-			layout: "y", 
+			width: 180,
+			layout: "y",
 			select: true,
 			template: "<span class='webix_icon #icon#'></span> #value# ",
 			data: [
@@ -33,7 +33,7 @@ export default class TopView extends JetView {
 							cols: [
 								{ view: "template", localId: "helloTemplate", template: " ", width: 240},
 								{},
-								{ view: "button", value: "Personal Information", width: 250, click: () => {this.show("personalPage")} },
+								{ view: "button", value: "Personal Information", width: 250, click: () => {this.show("personalPage");} },
 								{ view: "button", value: "Logout", width: 150, click: () => {this.do_logout(); window.location.reload(true); }}
 							],
 							css: "webix_dark"

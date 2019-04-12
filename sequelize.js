@@ -11,6 +11,7 @@ const UserOrderModel = require("./server/models/userOrder");
 const StatusModel = require("./server/models/status");
 const CommentModel = require("./server/models/comment");
 const LikeModel = require("./server/models/like");
+// const AnswerModel = require("./server/models/answer");
 
 const sequelize = new Sequelize("library", "root", "", {
 	host: "localhost",
@@ -63,8 +64,11 @@ Books.belongsToMany(User, {through: "BooksLikes"});
 
 // COMMENTS //
 const Comment = CommentModel(sequelize, Sequelize);
+// const Answer = AnswerModel(sequelize, Sequelize);
 User.hasMany(Comment, {foreignKey: 'user_id'});
+Comment.belongsTo(User, {foreignKey: 'user_id'});
 Books.hasMany(Comment);
+// Comment.hasMany(Answer);
 
 sequelize.sync()
 	.then(() => {

@@ -2,13 +2,7 @@ import { JetView, plugins } from "webix-jet";
 
 export default class TopView extends JetView {
 	config() {
-		var header = {
-			type: "header",
-			template: "Admin Menu",
-			css: "webix_header app_header"
-		};
-
-		var menu = {
+		const menu = {
 			view: "menu",
 			localId: "top:adminmenu",
 			css: "app_menu",
@@ -21,7 +15,7 @@ export default class TopView extends JetView {
 			]
 		};
 
-		var ui = {
+		const ui = {
 			type: "clean",
 			paddingX: 5,
 			css: "app_layout",
@@ -75,7 +69,6 @@ export default class TopView extends JetView {
 	}
 	init() {
 		let username = webix.storage.local.get("UserInfo").username;
-		console.log(username);
 		this.$getHelloTemplate().define({template: "Hi, " + username + ". You are admin"});
 		this.$getHelloTemplate().refresh();
 		this.use(plugins.Menu, this.$$("top:adminmenu"));

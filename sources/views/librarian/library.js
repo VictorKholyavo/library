@@ -26,11 +26,10 @@ export default class LibraryView extends JetView {
 						{ id: "pages", editor: "text", header: "Pages" },
 						{ id: "year", editor: "text", header: "Year" },
 						{ id: "author", editor: "text", header: "Author", fillspace: true, template: (obj) => {
-							return obj.authorName + " " + obj.authorSurname
+							return obj.authorName + " " + obj.authorSurname;
 						}
 						},
 						{ id: "genres", header: "Genres", fillspace: true, template: (obj) => {
-							console.log(obj);
 							let genres = " ";
 							genres = obj.genres.map(function (genre) {
 								return " " + genre.genre;
@@ -47,7 +46,7 @@ export default class LibraryView extends JetView {
 						updateFromResponse: true
 					},
 					on: {
-						onItemDblClick: (id) => {
+						onItemDblClick: () => {
 							const form = this.FormforBook;
 							const datatable = this.$getDatatable();
 							const values = datatable.getSelectedItem();

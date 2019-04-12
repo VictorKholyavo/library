@@ -114,8 +114,8 @@ export default class FormforBookView extends JetView {
 							view: "list",
 							id: "listOfFiles",
 							type: "uploader",
-							autoheight:true, 
-							borderless:true	
+							autoheight:true,
+							borderless:true
 						},
 						{
 							view:"uploader",
@@ -124,23 +124,10 @@ export default class FormforBookView extends JetView {
 							link: "listOfFiles",
 							upload: "http://localhost:3016/books/add",
 							autosend: false,
-							// name: "upload",
 							accept:"image/png, image/gif, image/jpg",
 							multiple: false,
-							// formData: function () {
-							// 	const values = this.$scope.$$("form").getValues();
-							// 	return values;						
-							// },
 							on: {
-								onBeforeFileAdd: (item) => {
-									let type = item.type.toLowerCase();
-									// if (type != "jpg" && type != "png") {
-									// 	webix.message("Only PNG or JPG images are supported");
-									// 	return false;
-									// }
-								},
 								onFileUpload: (response) => {
-									console.log(response);
 									this.$getTemplateCoverOfBook().setValues({src: response.path});
 									this.$getTemplateCoverOfBook().refresh();
 								}
@@ -157,7 +144,7 @@ export default class FormforBookView extends JetView {
 							}
 						}
 					]
-				},		
+				},
 			]
 
 		};
@@ -173,8 +160,6 @@ export default class FormforBookView extends JetView {
 			this.$$("uploader_1").send();
 			this.$getForm().clear();
 			this.$getForm().clearValidation();
-			// this.$getTemplateCoverOfBook().define({template: " "});
-			// this.$getTemplateCoverOfBook().refresh();
 		}
 		else {
 			webix.message({ type:"error", text:"Invalid info" });

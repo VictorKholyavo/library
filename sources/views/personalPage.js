@@ -17,7 +17,7 @@ export default class PersonalPageView extends JetView{
 					view:"icon",
 					icon:"wxi-close",
 					click: () => {
-						this.show("/top")
+						this.show("/top");
 					}
 				}
 			]
@@ -69,7 +69,7 @@ export default class PersonalPageView extends JetView{
 			rules: {
 				$all: webix.rules.isNotEmpty
 			}
-		}
+		};
 		const button = {
 			cols: [
 				{
@@ -100,7 +100,7 @@ export default class PersonalPageView extends JetView{
 					}
 				}
 			]
-		}
+		};
 		return {
 			cols: [{}, {rows: [{}, header, form, button, {}]}, {}]
 		};
@@ -109,9 +109,8 @@ export default class PersonalPageView extends JetView{
 		return this.$$("form");
 	}
 	savePersonalInformation(newValues) {
-		webix.ajax().put("http://localhost:3016/users/user/:" + newValues.id, newValues).then(function (response) {
-			response = response.json();
-			webix.message({type: "success", text: "Your information has been updated"})
+		webix.ajax().put("http://localhost:3016/users/user/:" + newValues.id, newValues).then(function () {
+			webix.message({type: "success", text: "Your information has been updated"});
 		});
 	}
 	init(){

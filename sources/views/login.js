@@ -48,16 +48,6 @@ export default class FormView extends JetView {
 							label: "Email",
 							labelWidth: 120
 						},
-						// {
-						// 	view: "text",
-						// 	localId: "username",
-						// 	name: "username",
-						// 	label: "Username",
-						// 	required: true,
-						// 	labelPosition: "left",
-						// 	batch: "b2",
-						// 	labelWidth: 120
-						// },
 						{
 							view: "text",
 							localId: "password",
@@ -96,8 +86,6 @@ export default class FormView extends JetView {
 											form.clear();
 											form.clearValidation();
 										}).then(function () {
-											console.log('login');
-											console.log(values);
 											user.login(values.email, values.password);
 										});
 									}

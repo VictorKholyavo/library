@@ -2,13 +2,7 @@ import { JetView, plugins } from "webix-jet";
 
 export default class TopView extends JetView {
 	config() {
-		var header = {
-			type: "header",
-			template: "Librarian Menu",
-			css: "webix_header app_header"
-		};
-
-		var menu = {
+		const menu = {
 			view: "menu",
 			localId: "top:librarianmenu",
 			css: "app_menu",
@@ -24,7 +18,7 @@ export default class TopView extends JetView {
 			]
 		};
 
-		var ui = {
+		const ui = {
 			type: "clean",
 			paddingX: 5,
 			css: "app_layout",
@@ -41,7 +35,7 @@ export default class TopView extends JetView {
 							cols: [
 								{ view: "template", localId: "helloTemplate", template: " ", width: 240},
 								{},
-								{ view: "button", value: "Personal Information", width: 250, click: () => {this.show("personalPage")} },
+								{ view: "button", value: "Personal Information", width: 250, click: () => {this.show("personalPage");} },
 								{ view: "button", value: "Logout", width: 150, click: () => {this.do_logout(); window.location.reload(true); }}
 							],
 							css: "webix_dark"

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 module.exports = (sequelize, type) => {
-	return sequelize.define("comments", {
+	return sequelize.define("answers", {
 		id: {
 			type: type.INTEGER,
 			autoIncrement: true,
@@ -13,8 +13,5 @@ module.exports = (sequelize, type) => {
 		text: {
 			type: type.STRING
 		},
-		parentId: {
-			type: type.INTEGER
-		}
 	});
 };
